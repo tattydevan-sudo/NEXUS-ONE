@@ -109,6 +109,8 @@ document.getElementById('viewBtn').addEventListener('click',function(){
   if(!projects.length){show('No saved projects yet. Create your first project above.');return}
   show('YOUR SAVED PROJECTS\n\n'+projects.map((p,i)=>(i+1)+'. '+p.title+'\nType: '+p.type+'\nCreated: '+p.created+'\nIdea: '+p.idea).join('\n\n'));
 });
-</script>
+</script> 
+<script
+src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
         </html>
