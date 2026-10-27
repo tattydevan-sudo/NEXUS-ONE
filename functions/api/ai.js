@@ -2,7 +2,7 @@
   try {
     if (!env.AI) {
       return Response.json(
-        { error: "Workers AI binding 'AI' is missing." },
+        { success: false, error: "Workers AI binding is missing." },
         { status: 503 }
       );
     }
@@ -13,7 +13,7 @@
       body = await request.json();
     } catch {
       return Response.json(
-        { error: "Invalid JSON request." },
+        { success: false, error: "Invalid request data." },
         { status: 400 }
       );
     }
@@ -23,37 +23,37 @@
 
     if (idea.length < 5 || idea.length > 3000) {
       return Response.json(
-        { error: "Enter an idea between 5 and 3000 characters." },
+        { success: false, error: "Please enter an idea between 5 and 3000 characters." },
         { status: 400 }
       );
     }
 
     const tasks = {
       business_plan:
-        "Create a practical business plan with an overview, target customers, services, marketing, estimated costs, risks, and next steps.",
+        "Create a practical project plan with an overview, target users, key features or services, promotion, estimated costs, risks, and next steps.",
       marketing:
-        "Create a marketing plan with a promotional message, three social media post ideas, and a call to action.",
+        "Create a marketing plan with a short promotional message, three social media post ideas, and a call to action.",
       budget:
-        "Create a simple startup budget in Kenyan shillings. Label figures as estimates and explain assumptions.",
+        "Create a simple estimated budget in Kenyan shillings (KSh). Explain assumptions and label all figures as estimates.",
       action_plan:
         "Create a practical 30-day action plan with weekly goals and specific tasks."
     };
 
     if (!tasks[task]) {
       return Response.json(
-        { error: "Unsupported task: " + task },
+        { success: false, error: "Unsupported planning task." },
         { status: 400 }
       );
     }
 
     const result = await env.AI.run(
-      "@cf/meta/llama-3.1-8b-instruct",
+      "@cf/meta/llama-3.1-8b-instruct-fp8",
       {
         messages: [
           {
             role: "system",
             content:
-              "You are NEXUS ONE, a practical planning assistant. Give clear, useful advice for entrepreneurs and students. Adapt to the user's idea, explain assumptions, and never guarantee results."
+              "You are NEXUS ONE, a helpful planning assistant. Give practical, clear, realistic advice. Adapt to the user's idea and explain assumptions. Never guarantee results."
           },
           {
             role: "user",
@@ -66,28 +66,28 @@
 
     const answer = result?.response || result?.output;
 
-    if (!answer) {
-      console.error("Workers AI returned no answer:", JSON.stringify(result));
-
+    if (typeof answer !== "string" || !answer.trim()) {
+      console.error("Workers AI returned no usable answer.");
       return Response.json(
-        { error: "The AI service returned an empty answer." },
+        { success: false, error: "The AI service returned an empty answer." },
         { status: 502 }
       );
     }
 
     return Response.json({
       success: true,
-      answer
+      answer: answer.trim()
     });
   } catch (error) {
     console.error("NEXUS ONE AI error:", error?.stack || error);
 
     return Response.json(
       {
+        success: false,
         error: "AI generation failed.",
-        details: String(error?.message || error || "Unknown error")
+        details: String(error?.message || "Unknown server error")
       },
       { status: 500 }
     );
   }
- }
+           }
