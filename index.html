@@ -1,49 +1,835 @@
- NEXUS ONE
-Connecting...
-Sign in
-Welcome to NEXUS ONE
-Big ideas deserve
-a real plan.
-One organized workspace to turn your ideas into projects, break down your next steps, and keep your work moving forward.
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090e1c">
+<meta name="description" content="NEXUS ONE — Plan ideas, manage projects, and build your future.">
+<title>NEXUS ONE | Your Ideas, In Motion</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg:#090e1c;
+  --surface:#10192c;
+  --surface2:#17233b;
+  --border:#293854;
+  --text:#f5f7ff;
+  --muted:#9ba9c3;
+  --purple:#8b5cf6;
+  --cyan:#38bdf8;
+  --green:#34d399;
+  --red:#fb7185;
+  --radius:18px;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+button,input,textarea,select { font:inherit; }
+button { cursor:pointer; }
+button:disabled { opacity:.55;cursor:not-allowed; }
+.app { min-height:100vh;display:flex; }
+.sidebar {
+  width:245px;flex-shrink:0;padding:25px 16px;
+  background:#0c1324;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+}
+.logo { font-size:25px;font-weight:900;letter-spacing:-1px; }
+.logo span { color:#a78bfa; }
+.tagline { font-size:12px;color:var(--muted);margin-top:5px; }
+.nav-label {
+  color:#7788a6;font-size:10px;letter-spacing:1.7px;
+  text-transform:uppercase;margin:30px 10px 10px;
+}
+.nav-btn {
+  width:100%;display:flex;align-items:center;gap:12px;
+  padding:12px;border:1px solid transparent;border-radius:12px;
+  background:transparent;color:var(--muted);text-align:left;margin:3px 0;
+}
+.nav-btn:hover,.nav-btn.active {
+  background:var(--surface2);border-color:var(--border);color:white;
+}
+.nav-icon { width:22px;text-align:center; }
+.sidebar-bottom { margin-top:auto;border-top:1px solid var(--border);padding-top:18px; }
+.main { flex:1;min-width:0;padding:30px; }
+.topbar {
+  display:flex;justify-content:space-between;align-items:center;
+  gap:15px;margin:0 auto 26px;max-width:1150px;
+}
+.topbar h1 { font-size:26px;margin:4px 0; }
+.eyebrow { color:#b8a4ff;font-size:10px;font-weight:800;letter-spacing:2px; }
+.status { font-size:12px;color:var(--muted);overflow-wrap:anywhere; }
+.content { max-width:1150px;margin:auto; }
+.section { display:none; }
+.section.active { display:block; }
+.hero {
+  padding:34px;border:1px solid #40366d;border-radius:24px;
+  background:radial-gradient(ellipse at top right,#3b2671 0,transparent 48%),
+  linear-gradient(135deg,#17152f,#11253c);
+  margin-bottom:20px;
+}
+.hero h2 {
+  font-size:clamp(30px,5vw,48px);line-height:1.1;
+  letter-spacing:-1.6px;margin:14px 0;
+}
+.hero p { color:#c4cde1;line-height:1.8;max-width:620px; }
+.grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px; }
+.stats { grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:18px; }
+.card {
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:22px;min-width:0;
+}
+.card h3 { font-size:17px;margin:0 0 10px; }
+.card p { font-size:14px;color:var(--muted);line-height:1.7; }
+.stat-label { font-size:11px;color:var(--muted);letter-spacing:1px; }
+.stat-number { font-size:30px;font-weight:850;margin-top:10px; }
+.muted { color:var(--muted); }
+.small { font-size:12px; }
+.btn {
+  padding:11px 15px;border:0;border-radius:10px;
+  color:white;background:var(--purple);font-weight:750;
+}
+.btn:hover { filter:brightness(1.12); }
+.btn.secondary { background:#273653; }
+.btn.outline { background:transparent;border:1px solid var(--border); }
+.btn.danger { background:#812a40; }
+.btn-row { display:flex;flex-wrap:wrap;gap:9px;margin-top:15px; }
+.field { margin:15px 0; }
+label { display:block;font-size:13px;margin-bottom:8px;color:#dce5f7; }
+input,textarea,select {
+  width:100%;padding:13px;border-radius:11px;
+  background:#0b1324;border:1px solid var(--border);color:white;
+}
+textarea { min-height:115px;resize:vertical; }
+input::placeholder,textarea::placeholder { color:#71809c; }
+.notice {
+  display:none;max-width:1150px;margin:0 auto 18px;padding:13px 15px;
+  border:1px solid var(--border);border-radius:12px;line-height:1.6;
+  overflow-wrap:anywhere;
+}
+.notice.show { display:block; }
+.notice.error { border-color:#a63c53;color:#fecdd3;background:#301421; }
+.notice.good { border-color:#247b61;color:#a7f3d0;background:#102a27; }
+.project {
+  padding:17px;background:#0d1628;border:1px solid var(--border);
+  border-radius:14px;margin-top:12px;min-width:0;
+}
+.project h3,.project p { overflow-wrap:anywhere; }
+.project p { white-space:pre-wrap; }
+.badge {
+  display:inline-block;padding:4px 9px;border-radius:20px;
+  background:#2a2050;color:#ddd6fe;font-size:11px;margin:2px 5px 2px 0;
+}
+.empty {
+  text-align:center;padding:30px 16px;border:1px dashed var(--border);
+  border-radius:14px;color:var(--muted);line-height:1.7;
+}
+hr { border:0;border-top:1px solid var(--border);margin:22px 0; }
+footer { max-width:1150px;margin:30px auto 0;padding:20px 0;color:var(--muted);font-size:12px; }
+.mobile-nav { display:none; }
+@media(max-width:800px) {
+  .sidebar { display:none; }
+  .main { padding:20px 14px 105px; }
+  .topbar { align-items:flex-start; }
+  .topbar h1 { font-size:22px; }
+  .hero { padding:24px 19px; }
+  .grid,.stats { grid-template-columns:1fr; }
+  .mobile-nav {
+    display:flex;position:fixed;bottom:0;left:0;right:0;z-index:50;
+    overflow-x:auto;background:#0c1324;border-top:1px solid var(--border);
+    padding:7px 5px calc(7px + env(safe-area-inset-bottom));
+  }
+  .mobile-nav button {
+    flex:0 0 76px;min-width:76px;border:0;border-radius:10px;
+    background:transparent;color:var(--muted);padding:9px 3px;font-size:11px;
+  }
+  .mobile-nav button.active { background:var(--surface2);color:white; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="logo">NEXUS<span> ONE</span></div>
+  <div class="tagline">Your ideas. Your future.</div>
+  <div class="nav-label">Workspace</div>
+  <button class="nav-btn active" data-page="home">⌂ Home</button>
+  <button class="nav-btn" data-page="dashboard">▦ Dashboard</button>
+  <button class="nav-btn" data-page="projects">▤ My Projects</button>
+  <button class="nav-btn" data-page="planner">✦ Idea Planner</button>
+  <div class="nav-label">Account</div>
+  <button class="nav-btn" data-page="settings">⚙ Settings</button>
+  <button class="nav-btn" data-page="help">? Help & Support</button>
+  <button class="nav-btn" data-page="account">♙ Account / Sign in</button>
+  <div class="sidebar-bottom">
+    <div class="small muted">YOUR ACCOUNT</div>
+    <p id="sideEmail" class="small">Checking connection…</p>
+    <button class="btn secondary" style="width:100%" data-page="account">Open account</button>
+  </div>
+</aside>
 
-Start a project →
-Explore my projects
-TOTAL PROJECTS
-—
-Projects in your workspace
-COMPLETED
-—
-Projects marked completed
-ACCOUNT
-Guest
-Sign in to save projects online
-✦ Plan with purpose
-Turn a business, technology, or personal idea into a starter checklist.
+<main class="main">
+<header class="topbar">
+  <div><div class="eyebrow">YOUR PERSONAL WORKSPACE</div><h1 id="pageTitle">Home</h1></div>
+  <div class="status" id="accountStatus">Connecting…</div>
+</header>
+<div id="notice" class="notice" role="status" aria-live="polite"></div>
 
-Open planner
-▤ Keep everything organized
-Access saved projects, edit descriptions, and update project status.
+<div class="content">
+<section class="section active" id="home">
+  <div class="hero">
+    <div class="eyebrow">WELCOME TO NEXUS ONE</div>
+    <h2>Big ideas deserve<br>a real plan.</h2>
+    <p>One organized workspace to turn your ideas into projects, break down your next steps, and keep your work moving forward.</p>
+    <div class="btn-row">
+      <button class="btn" data-go="planner">Start a project →</button>
+      <button class="btn secondary" data-go="projects">Explore my projects</button>
+    </div>
+  </div>
+  <div class="grid stats">
+    <div class="card"><div class="stat-label">TOTAL PROJECTS</div><div class="stat-number" id="homeTotal">—</div></div>
+    <div class="card"><div class="stat-label">COMPLETED</div><div class="stat-number" id="homeCompleted">—</div></div>
+    <div class="card"><div class="stat-label">ACCOUNT</div><div class="stat-number" style="font-size:20px" id="homeAccount">Guest</div></div>
+  </div>
+  <div class="grid">
+    <div class="card"><h3>✦ Plan with purpose</h3><p>Turn a business, technology, or personal idea into a plan using AI or starter templates.</p><button class="btn" data-go="planner">Open planner</button></div>
+    <div class="card"><h3>▤ Keep everything organized</h3><p>Access saved projects, edit descriptions, and update project status.</p><button class="btn secondary" data-go="projects">View projects</button></div>
+  </div>
+</section>
 
-View projects
-NEXUS ONE · A workspace for your next big idea.
+<section class="section" id="dashboard">
+  <div class="hero"><div class="eyebrow">YOUR PROGRESS</div><h2>Make progress visible.</h2><p>See your saved work and keep track of project status.</p><button class="btn" id="refreshDashboard">Refresh dashboard</button></div>
+  <div class="grid stats">
+    <div class="card"><div class="stat-label">ALL PROJECTS</div><div class="stat-number" id="dashTotal">—</div></div>
+    <div class="card"><div class="stat-label">ACTIVE</div><div class="stat-number" id="dashActive">—</div></div>
+    <div class="card"><div class="stat-label">COMPLETED</div><div class="stat-number" id="dashCompleted">—</div></div>
+  </div>
+  <div class="card"><h3>Recent projects</h3><div id="recentProjects" class="muted">Sign in to view your projects.</div></div>
+</section>
 
-⌂
-Home
+<section class="section" id="projects">
+  <div class="card">
+    <h3>My Projects</h3><p>Your projects are saved online in your account.</p>
+    <div class="btn-row"><button class="btn" id="refreshProjects">Refresh</button><button class="btn secondary" data-go="planner">+ New project</button></div>
+    <div id="projectList" style="margin-top:16px"><div class="empty">Checking your workspace…</div></div>
+  </div>
+</section>
 
-▦
-Dashboard
+<section class="section" id="planner">
+  <div class="hero"><div class="eyebrow">IDEA → PLAN → ACTION</div><h2>Give your idea direction.</h2><p>Describe your idea and generate a plan with the connected AI service, or use a starter checklist.</p></div>
+  <div class="grid">
+    <div class="card">
+      <h3>Project details</h3>
+      <form id="projectForm">
+        <div class="field"><label for="projectTitle">Project name</label><input id="projectTitle" maxlength="120" required placeholder="e.g. My online business"></div>
+        <div class="field"><label for="projectType">Category</label><select id="projectType"><option value="business">Business</option><option value="technology">Technology / App</option><option value="education">Education</option><option value="content">Content creation</option><option value="personal">Personal goal</option><option value="other">Other</option></select></div>
+        <div class="field"><label for="projectIdea">Describe your idea</label><textarea id="projectIdea" maxlength="3000" required placeholder="What do you want to build? Who is it for? What do you want to achieve?"></textarea></div>
+        <div class="field"><label for="aiTask">What do you want AI to create?</label><select id="aiTask"><option value="business_plan">Business / project plan</option><option value="action_plan">Step-by-step action plan</option><option value="marketing">Marketing ideas</option><option value="budget">Starter budget</option></select></div>
+        <div class="btn-row"><button class="btn" id="generateBtn" type="button">✦ Generate with AI</button><button class="btn secondary" id="templateBtn" type="button">Use starter checklist</button></div>
+        <div class="btn-row"><button class="btn" id="saveBtn" type="submit">Save project</button><button class="btn outline" id="cancelEdit" type="button" hidden>Cancel edit</button></div>
+      </form>
+    </div>
+    <div class="card"><h3>Your plan</h3><p class="small muted">AI-generated plans may need checking. Do not enter passwords or sensitive financial information.</p><div id="planOutput" class="muted">Describe your idea, then choose AI or the starter checklist.</div></div>
+  </div>
+</section>
 
-▤
-Projects
+<section class="section" id="settings">
+  <div class="card"><h3>Settings</h3><p>Manage your account session and view your sign-in status.</p>
+    <div class="field"><label for="settingsEmail">Account email</label><input id="settingsEmail" readonly value="Not signed in"></div>
+    <div class="btn-row"><button class="btn" data-go="account">Account / Sign in</button><button class="btn danger" id="settingsSignOut" disabled>Sign out</button></div>
+    <hr><h3>Privacy reminder</h3><p>Use a password you don't share with anyone. Avoid placing passwords or sensitive personal information in project descriptions.</p>
+  </div>
+</section>
 
-✦
-Planner
+<section class="section" id="help">
+  <div class="card"><h3>Help & Support</h3>
+    <p><strong>Creating an account:</strong> Open Account / Sign in, enter your email and password, then create an account or sign in.</p>
+    <hr><p><strong>Saving projects:</strong> Sign in, open Idea Planner, describe your idea, then save it.</p>
+    <hr><p><strong>AI functionality:</strong> The planner sends your idea to the NEXUS ONE backend at <code>/api/ai</code>. The Cloudflare AI binding and backend function must be deployed.</p>
+    <hr><p><strong>If something fails:</strong> Check your internet connection and read the on-screen message. Never share your password or private server keys.</p>
+  </div>
+</section>
 
-⚙
-Settings
+<section class="section" id="account">
+  <div class="grid">
+    <div class="card">
+      <div class="eyebrow">YOUR NEXUS ID</div><h3>Welcome back.</h3><p>Sign in to access your online workspace from your devices.</p>
+      <form id="authForm">
+        <div class="field"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+        <div class="field"><label for="password">Password</label><input id="password" type="password" minlength="6" autocomplete="current-password" required placeholder="At least 6 characters"></div>
+        <div class="btn-row"><button class="btn" id="createAccount" type="button">Create account</button><button class="btn secondary" type="submit">Sign in</button></div>
+      </form>
+      <p class="small muted">If email verification is enabled, check your inbox after registering.</p>
+      <button class="btn danger" id="signOut" hidden>Sign out</button>
+    </div>
+    <div class="card"><h3>Your workspace, wherever you are.</h3><p>Save your projects online, return to your ideas, and continue working when you sign in again.</p><span class="badge">Email authentication</span><span class="badge">Online project storage</span><span class="badge">AI planner</span></div>
+  </div>
+</section>
+</div>
+<footer>NEXUS ONE · A workspace for your next big idea.</footer>
+</main>
+</div>
 
-?
-Help
+<nav class="mobile-nav" aria-label="Main navigation">
+  <button class="active" data-page="home">⌂<br>Home</button>
+  <button data-page="dashboard">▦<br>Dashboard</button>
+  <button data-page="projects">▤<br>Projects</button>
+  <button data-page="planner">✦<br>Planner</button>
+  <button data-page="settings">⚙<br>Settings</button>
+  <button data-page="help">?<br>Help</button>
+  <button data-page="account">♙<br>Account</button>
+</nav>
 
-♙
-Account
+<script>
+(() => {
+"use strict";
+
+const SUPABASE_URL = "https://nboabadorztgosklmjkx.supabase.co";
+
+/* Public anon key only. Never put a service-role key in website code. */
+const SUPABASE_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ib2FiYWRvcnp0Z29za2xtamt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwNzEwMDEsImV4cCI6MjEwODY0NzAwMX0.wCvt4YojqU2eXghtGXuQKFI-v0k9MPXgBq5YsNVIusI";
+
+const $ = id => document.getElementById(id);
+let db = null;
+let currentUser = null;
+let projects = [];
+let editingId = null;
+let generatedPlan = "";
+let noticeTimer = null;
+
+const pageTitles = {
+  home:"Home", dashboard:"Dashboard", projects:"My Projects",
+  planner:"Idea Planner", settings:"Settings",
+  help:"Help & Support", account:"Account"
+};
+
+function notice(message,type="good") {
+  const box=$("notice");
+  box.textContent=message;
+  box.className="notice show "+(type==="error"?"error":"good");
+  clearTimeout(noticeTimer);
+  noticeTimer=setTimeout(()=>box.classList.remove("show"),8000);
+}
+
+function explainError(error) {
+  console.error(error);
+  const message=error?.message||"Something went wrong.";
+  if(/invalid login credentials/i.test(message)) return "Incorrect email or password.";
+  if(/email not confirmed/i.test(message)) return "Please verify your email using the link sent to your inbox.";
+  if(/row-level security|permission denied/i.test(message)) return "Database permissions blocked this action. Check your Supabase policies.";
+  if(/network|fetch/i.test(message)) return "Network error. Check your internet and try again.";
+  return message;
+}
+
+function ready() {
+  if(!db) {
+    notice("Supabase is not connected. Refresh the page and check your connection.","error");
+    return false;
+  }
+  return true;
+}
+
+function go(page) {
+  if(!pageTitles[page]) return;
+  document.querySelectorAll(".section").forEach(section=>section.classList.remove("active"));
+  $(page).classList.add("active");
+  $("pageTitle").textContent=pageTitles[page];
+  document.querySelectorAll("[data-page]").forEach(button=>{
+    button.classList.toggle("active",button.dataset.page===page);
+  });
+  if(page==="projects"||page==="dashboard") loadProjects();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+document.querySelectorAll("[data-page]").forEach(button=>{
+  button.addEventListener("click",()=>go(button.dataset.page));
+});
+document.querySelectorAll("[data-go]").forEach(button=>{
+  button.addEventListener("click",()=>go(button.dataset.go));
+});
+
+function updateAccount() {
+  const email=currentUser?.email||"";
+  $("accountStatus").textContent=email||"Guest mode";
+  $("sideEmail").textContent=email||"Guest mode";
+  $("homeAccount").textContent=email?"Signed in":"Guest";
+  $("settingsEmail").value=email||"Not signed in";
+  $("signOut").hidden=!currentUser;
+  $("settingsSignOut").disabled=!currentUser;
+  $("password").value="";
+}
+
+function checklist(type) {
+  const plans={
+    business:[
+      "Describe the customer problem and your solution.",
+      "Identify target customers and competitors.",
+      "List your first products or services.",
+      "Estimate startup costs and possible revenue.",
+      "Test the idea on a small scale.",
+      "Collect feedback and improve."
+    ],
+    technology:[
+      "Define the problem your app will solve.",
+      "Identify your users and essential features.",
+      "Sketch the main screens and user journey.",
+      "Build a small working prototype.",
+      "Test functionality, privacy, and security.",
+      "Gather feedback and prioritize improvements."
+    ],
+    education:[
+      "Define the learning goal and intended learners.",
+      "Break the topic into lessons.",
+      "Gather reliable learning resources.",
+      "Create a first lesson or activity.",
+      "Test understanding.",
+      "Improve using feedback."
+    ],
+    content:[
+      "Choose your subject and target audience.",
+      "Decide on content format and goal.",
+      "Create an outline.",
+      "Produce and review your first piece.",
+      "Publish on a suitable platform.",
+      "Review feedback and improve."
+    ],
+    personal:[
+      "Define your goal and why it matters.",
+      "Break it into small achievable steps.",
+      "Set a realistic target date.",
+      "Identify time and resources needed.",
+      "Review progress regularly.",
+      "Adjust when necessary."
+    ],
+    other:[
+      "Describe the problem or opportunity.",
+      "Define what success means.",
+      "Identify resources needed.",
+      "Break the work into small tasks.",
+      "Complete your first milestone.",
+      "Review results and decide the next step."
+    ]
+  };
+  return plans[type]||plans.other;
+}
+
+function showPlan(text) {
+  const output=$("planOutput");
+  output.replaceChildren();
+  const content=document.createElement("div");
+  content.style.whiteSpace="pre-wrap";
+  content.style.lineHeight="1.7";
+  content.textContent=text;
+  output.appendChild(content);
+}
+
+function renderTemplate() {
+  generatedPlan="STARTER CHECKLIST\n\n"+
+    checklist($("projectType").value).map((item,index)=>(index+1)+". "+item).join("\n");
+  showPlan(generatedPlan);
+}
+$("templateBtn").addEventListener("click",renderTemplate);
+
+async function generateAI() {
+  const idea=$("projectIdea").value.trim();
+  if(idea.length<5) {
+    notice("Describe your idea in at least 5 characters first.","error");
+    return;
+  }
+  const button=$("generateBtn");
+  button.disabled=true;
+  button.textContent="Generating…";
+  showPlan("NEXUS ONE AI is preparing your plan…");
+
+  try {
+    const response=await fetch("/api/ai",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({idea,task:$("aiTask").value})
+    });
+    let data;
+    try {
+      data=await response.json();
+    } catch {
+      throw new Error("The AI endpoint returned an unreadable response.");
+    }
+    if(!response.ok||!data.success) {
+      throw new Error(data.error||"AI request failed. Check that the backend is deployed.");
+    }
+    generatedPlan=String(data.answer||"").trim();
+    if(!generatedPlan) throw new Error("AI returned an empty plan.");
+    showPlan(generatedPlan);
+    notice("AI plan generated. Review it, then save your project.");
+  } catch(error) {
+    showPlan("AI could not generate a plan.\n\n"+
+      (error.message||"Unknown error")+
+      "\n\nYou can still use the starter checklist.");
+    notice(explainError(error),"error");
+  } finally {
+    button.disabled=false;
+    button.textContent="✦ Generate with AI";
+  }
+}
+$("generateBtn").addEventListener("click",generateAI);
+
+function renderProjects() {
+  const list=$("projectList");
+  list.replaceChildren();
+
+  if(!currentUser) {
+    const empty=document.createElement("div");
+    empty.className="empty";
+    empty.textContent="Sign in to view your saved projects.";
+    list.appendChild(empty);
+    return;
+  }
+
+  if(!projects.length) {
+    const empty=document.createElement("div");
+    empty.className="empty";
+    empty.textContent="No projects yet. Open the Idea Planner to create your first one.";
+    list.appendChild(empty);
+    return;
+  }
+
+  projects.forEach(project=>{
+    const card=document.createElement("article");
+    card.className="project";
+
+    const title=document.createElement("h3");
+    title.textContent=project.title||"Untitled project";
+
+    const type=document.createElement("span");
+    type.className="badge";
+    type.textContent=project.project_type||"business";
+
+    const status=document.createElement("span");
+    status.className="badge";
+    status.textContent=project.status||"active";
+
+    const description=document.createElement("p");
+    description.textContent=project.description||"No description.";
+
+    const date=document.createElement("p");
+    date.className="small muted";
+    date.textContent=project.updated_at
+      ?"Updated "+new Date(project.updated_at).toLocaleDateString():"";
+
+    const actions=document.createElement("div");
+    actions.className="btn-row";
+
+    const edit=document.createElement("button");
+    edit.className="btn secondary";
+    edit.textContent="Edit";
+    edit.onclick=()=>startEdit(project);
+
+    const toggle=document.createElement("button");
+    toggle.className="btn outline";
+    toggle.textContent=project.status==="completed"?"Mark active":"Mark completed";
+    toggle.onclick=()=>toggleStatus(project);
+
+    const remove=document.createElement("button");
+    remove.className="btn danger";
+    remove.textContent="Delete";
+    remove.onclick=()=>deleteProject(project);
+
+    actions.append(edit,toggle,remove);
+    card.append(title,type,status,description,date,actions);
+    list.appendChild(card);
+  });
+}
+
+function updateDashboard() {
+  const total=projects.length;
+  const completed=projects.filter(p=>p.status==="completed").length;
+  const active=projects.filter(p=>(p.status||"active")==="active").length;
+
+  $("homeTotal").textContent=currentUser?total:"—";
+  $("homeCompleted").textContent=currentUser?completed:"—";
+  $("dashTotal").textContent=currentUser?total:"—";
+  $("dashActive").textContent=currentUser?active:"—";
+  $("dashCompleted").textContent=currentUser?completed:"—";
+
+  const recent=$("recentProjects");
+  recent.replaceChildren();
+
+  if(!currentUser) {
+    recent.textContent="Sign in to view your projects.";
+    return;
+  }
+  if(!projects.length) {
+    recent.textContent="No saved projects yet.";
+    return;
+  }
+
+  projects.slice(0,5).forEach(project=>{
+    const row=document.createElement("div");
+    row.className="project";
+    const title=document.createElement("strong");
+    title.textContent=project.title||"Untitled project";
+    const status=document.createElement("span");
+    status.className="badge";
+    status.textContent=project.status||"active";
+    row.append(title,status);
+    recent.appendChild(row);
+  });
+}
+
+async function loadProjects() {
+  if(!currentUser||!db) {
+    projects=[];
+    renderProjects();
+    updateDashboard();
+    return;
+  }
+
+  try {
+    const {data,error}=await db
+      .from("nexus_projects")
+      .select("id,user_id,title,description,project_type,status,created_at,updated_at")
+      .order("created_at",{ascending:false});
+
+    if(error) throw error;
+    projects=data||[];
+    renderProjects();
+    updateDashboard();
+  } catch(error) {
+    notice(explainError(error),"error");
+  }
+}
+
+function startEdit(project) {
+  editingId=project.id;
+  $("projectTitle").value=project.title||"";
+  $("projectType").value=project.project_type||"business";
+  $("projectIdea").value=project.description||"";
+  generatedPlan="";
+  showPlan("Edit the project details, then save your changes.");
+  $("saveBtn").textContent="Save project changes";
+  $("cancelEdit").hidden=false;
+  go("planner");
+}
+
+function resetForm() {
+  editingId=null;
+  $("projectForm").reset();
+  $("saveBtn").textContent="Save project";
+  $("cancelEdit").hidden=true;
+  generatedPlan="";
+  showPlan("Describe your idea, then choose AI or the starter checklist.");
+}
+$("cancelEdit").addEventListener("click",resetForm);
+
+$("projectForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+
+  if(!currentUser) {
+    notice("Please sign in before saving a project.","error");
+    go("account");
+    return;
+  }
+  if(!ready()) return;
+
+  const title=$("projectTitle").value.trim();
+  const idea=$("projectIdea").value.trim();
+  const type=$("projectType").value;
+
+  if(!title||!idea) {
+    notice("Enter a project name and description.","error");
+    return;
+  }
+
+  const description=generatedPlan?idea+"\n\n"+generatedPlan:idea;
+  const button=$("saveBtn");
+  button.disabled=true;
+  button.textContent="Saving…";
+
+  try {
+    const payload={
+      title,
+      description,
+      project_type:type,
+      updated_at:new Date().toISOString()
+    };
+
+    let result;
+    if(editingId) {
+      result=await db.from("nexus_projects")
+        .update(payload)
+        .eq("id",editingId)
+        .eq("user_id",currentUser.id)
+        .select("id");
+    } else {
+      result=await db.from("nexus_projects")
+        .insert({...payload,user_id:currentUser.id,status:"active"})
+        .select("id");
+    }
+
+    if(result.error) throw result.error;
+    if(!result.data?.length) throw new Error("No project was changed. Refresh and try again.");
+
+    const wasEditing=Boolean(editingId);
+    resetForm();
+    notice(wasEditing?"Project updated online.":"Project saved online.");
+    await loadProjects();
+    go("projects");
+  } catch(error) {
+    notice(explainError(error),"error");
+  } finally {
+    button.disabled=false;
+    button.textContent=editingId?"Save project changes":"Save project";
+  }
+});
+
+async function toggleStatus(project) {
+  if(!ready()||!currentUser) return;
+  try {
+    const status=project.status==="completed"?"active":"completed";
+    const {error}=await db.from("nexus_projects")
+      .update({status,updated_at:new Date().toISOString()})
+      .eq("id",project.id)
+      .eq("user_id",currentUser.id);
+    if(error) throw error;
+    notice("Project status updated.");
+    await loadProjects();
+  } catch(error) {
+    notice(explainError(error),"error");
+  }
+}
+
+async function deleteProject(project) {
+  if(!ready()||!currentUser) return;
+  if(!confirm("Delete this project permanently?")) return;
+  try {
+    const {error}=await db.from("nexus_projects")
+      .delete()
+      .eq("id",project.id)
+      .eq("user_id",currentUser.id);
+    if(error) throw error;
+    notice("Project deleted.");
+    await loadProjects();
+  } catch(error) {
+    notice(explainError(error),"error");
+  }
+}
+
+async function signIn() {
+  if(!ready()) return;
+  const email=$("email").value.trim();
+  const password=$("password").value;
+  if(!email||!password) {
+    notice("Enter your email and password.","error");
+    return;
+  }
+  try {
+    const {error}=await db.auth.signInWithPassword({email,password});
+    if(error) throw error;
+    notice("Signed in successfully.");
+    go("dashboard");
+  } catch(error) {
+    notice(explainError(error),"error");
+  }
+}
+
+$("authForm").addEventListener("submit",event=>{
+  event.preventDefault();
+  signIn();
+});
+
+$("createAccount").addEventListener("click",async()=>{
+  if(!ready()) return;
+  const email=$("email").value.trim();
+  const password=$("password").value;
+
+  if(!email||password.length<6) {
+    notice("Enter a valid email and a password with at least 6 characters.","error");
+    return;
+  }
+
+  const button=$("createAccount");
+  button.disabled=true;
+  button.textContent="Creating…";
+
+  try {
+    const {data,error}=await db.auth.signUp({email,password});
+    if(error) throw error;
+    if(data.session) {
+      notice("Account created successfully.");
+      go("dashboard");
+    } else {
+      notice("Check your email for the verification link, then sign in.");
+    }
+  } catch(error) {
+    notice(explainError(error),"error");
+  } finally {
+    button.disabled=false;
+    button.textContent="Create account";
+  }
+});
+
+async function signOut() {
+  if(!ready()) return;
+  try {
+    const {error}=await db.auth.signOut();
+    if(error) throw error;
+    currentUser=null;
+    projects=[];
+    updateAccount();
+    renderProjects();
+    updateDashboard();
+    notice("You have signed out.");
+    go("home");
+  } catch(error) {
+    notice(explainError(error),"error");
+  }
+}
+$("signOut").addEventListener("click",signOut);
+$("settingsSignOut").addEventListener("click",signOut);
+$("refreshProjects").addEventListener("click",loadProjects);
+$("refreshDashboard").addEventListener("click",loadProjects);
+
+async function initialize() {
+  renderTemplate();
+
+  try {
+    if(!window.supabase?.createClient) {
+      throw new Error("Supabase library failed to load. Refresh and check your connection.");
+    }
+
+    db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLIC_KEY);
+
+    const {data,error}=await db.auth.getSession();
+    if(error) throw error;
+
+    currentUser=data.session?.user||null;
+    updateAccount();
+    await loadProjects();
+
+    db.auth.onAuthStateChange((_event,session)=>{
+      currentUser=session?.user||null;
+      updateAccount();
+      setTimeout(()=>{
+        if(currentUser) {
+          loadProjects();
+        } else {
+          projects=[];
+          renderProjects();
+          updateDashboard();
+        }
+      },0);
+    });
+  } catch(error) {
+    $("accountStatus").textContent="Connection error";
+    $("sideEmail").textContent="Connection error";
+    notice(explainError(error),"error");
+  }
+}
+
+initialize();
+})();
+</script>
+</body>
+ </html>
