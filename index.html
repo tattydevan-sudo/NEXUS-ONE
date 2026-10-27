@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+ <!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,110 +6,299 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#0b1020;color:#f5f7ff}
-header{padding:22px 7%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #293047}
+header{padding:22px 7%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #293047}
 .logo{font-size:24px;font-weight:bold;letter-spacing:2px}
-.logo span{color:#7c8cff}
+.logo span,h1 span{color:#8e9aff}
 .tag{color:#aab3cc;font-size:12px}
-main{max-width:850px;margin:55px auto;padding:20px}
+main{max-width:850px;margin:40px auto;padding:20px}
 .badge{color:#9eacff;background:#1b2344;padding:9px 13px;border-radius:30px;font-size:13px}
 h1{font-size:clamp(38px,8vw,64px);line-height:1.05;margin:28px 0 15px}
-h1 span{color:#8e9aff}
 p{color:#b6bfd5;line-height:1.7}
-.card{background:#121a30;border:1px solid #29334e;border-radius:18px;padding:24px;margin-top:30px}
+.card{background:#121a30;border:1px solid #29334e;border-radius:18px;padding:24px;margin-top:25px}
 label{display:block;margin:16px 0 8px;font-size:14px}
 input,textarea,select{width:100%;padding:14px;border-radius:10px;border:1px solid #36415e;background:#0b1020;color:white;font-size:16px}
-textarea{min-height:110px;resize:vertical}
-button{background:#7888ff;color:#080d20;border:0;border-radius:10px;padding:14px 20px;font-weight:bold;font-size:15px;cursor:pointer}
-button:hover{opacity:.9}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+textarea{min-height:100px;resize:vertical}
+button{background:#7888ff;color:#080d20;border:0;border-radius:10px;padding:14px 18px;font-weight:bold;font-size:15px;cursor:pointer}
+button:disabled{opacity:.5}
 .secondary{background:#26304c;color:white}
-#output{white-space:pre-wrap;display:none;background:#0b1020;border-radius:10px;padding:18px;margin-top:20px;line-height:1.7}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+#output{white-space:pre-wrap;display:none;background:#0b1020;border-radius:10px;padding:18px;margin-top:20px;line-height:1.7;overflow-wrap:anywhere}
+#accountStatus{overflow-wrap:anywhere}
 footer{text-align:center;color:#7e89a5;padding:35px 15px;font-size:12px}
+.hidden{display:none}
 </style>
 </head>
 <body>
 <header>
   <div class="logo">NEXUS<span>ONE</span></div>
   <div class="tag">YOUR IDEAS. YOUR NEXT MOVE.</div>
-</header>
-<main>
+</header><main>
   <span class="badge">✦ YOUR PERSONAL PROJECT WORKSPACE</span>
   <h1>Big ideas need<br><span>a starting point.</span></h1>
-  <p>NEXUS ONE helps you turn an idea into a clear plan, organize your next steps, and start making progress.</p>
+  <p>NEXUS ONE helps you turn an idea into a clear plan, organize your next steps, and make progress.</p>  <section class="card">
+    <h2>Your account</h2>
+    <p>Create an account or sign in to save projects online.</p><label for="email">Email address</label>
+<input id="email" type="email" autocomplete="email" placeholder="you@example.com">
 
-  <section class="card">
+<label for="password">Password</label>
+<input id="password" type="password" autocomplete="current-password" minlength="6" placeholder="At least 6 characters">
+
+<div class="actions">
+  <button id="signupBtn" type="button">Create account</button>
+  <button id="loginBtn" type="button" class="secondary">Sign in</button>
+  <button id="logoutBtn" type="button" class="secondary hidden">Sign out</button>
+</div>
+<p id="accountStatus" role="status">Connecting to NEXUS ONE...</p>
+
+  </section>  <section class="card">
     <h2>Start with your idea</h2>
-    <p>Tell us what you want to build. Create a project plan and save your work on this device.</p>
-    <form id="projectForm">
-      <label for="title">Project name</label>
-      <input id="title" maxlength="100" placeholder="e.g. My online shop" required>
-      <label for="type">Project type</label>
-      <select id="type">
-        <option>Small business</option>
-        <option>Technology startup</option>
-        <option>School or learning</option>
-        <option>Creative project</option>
-        <option>Community idea</option>
-        <option>Other</option>
-      </select>
-      <label for="idea">Describe your idea</label>
-      <textarea id="idea" maxlength="2000" placeholder="What do you want to create, and who will it help?" required></textarea>
-      <div class="actions">
-        <button type="submit">Create my plan →</button>
-        <button type="button" class="secondary" id="viewBtn">My saved projects</button>
-      </div>
-    </form>
-    <div id="output"></div>
+    <p>Describe your idea and save your project to your account.</p><form id="projectForm">
+  <label for="title">Project name</label>
+  <input id="title" maxlength="150" placeholder="e.g. My online shop" required>
+
+  <label for="type">Project type</label>
+  <select id="type">
+    <option>Small business</option>
+    <option>Technology startup</option>
+    <option>School or learning</option>
+    <option>Creative project</option>
+    <option>Community idea</option>
+    <option>Other</option>
+  </select>
+
+  <label for="idea">Describe your idea</label>
+  <textarea id="idea" maxlength="2000" placeholder="What do you want to create, and who will it help?" required></textarea>
+
+  <div class="actions">
+    <button id="createBtn" type="submit">Create and save my plan →</button>
+    <button id="viewBtn" type="button" class="secondary">My saved projects</button>
+  </div>
+</form>
+<div id="output" role="status"></div>
+
   </section>
-</main>
-<footer>NEXUS ONE · EARLY BUILD · Built to help ideas move forward.</footer>
-<script>
-const form=document.getElementById('projectForm');
-const output=document.getElementById('output');
-function getProjects(){
-  try{return JSON.parse(localStorage.getItem('nexusOneProjects')||'[]')}catch(e){return []}
+</main><footer>NEXUS ONE · EARLY BUILD · Built to help ideas move forward.</footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+"use strict";
+
+const SUPABASE_URL = "https://nboabadorztgosklmjkx.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ib2FiYWRvcnp0Z29za2xtamt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwNzEwMDEsImV4cCI6MjEwODY0NzAwMX0.wCvt4YojqU2eXghtGXuQKFI-v0k9MPXgBq5YsNVIusI";
+
+const $ = id => document.getElementById(id);
+const status = $("accountStatus");
+const output = $("output");
+
+let client = null;
+let currentUser = null;
+
+function getClient() {
+  if (client) return client;
+  if (!window.supabase) {
+    throw new Error("Supabase did not load. Check your internet connection and reload the page.");
+  }
+  client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  return client;
 }
-function show(text){
-  output.style.display='block';
-  output.textContent=text;
+
+function show(message) {
+  output.style.display = "block";
+  output.textContent = message;
 }
-form.addEventListener('submit',function(e){
-  e.preventDefault();
-  const title=document.getElementById('title').value.trim();
-  const type=document.getElementById('type').value;
-  const idea=document.getElementById('idea').value.trim();
-  if(!title||!idea){show('Please enter a project name and describe your idea.');return}
-  const project={
-    id:Date.now(),
-    title:title,
-    type:type,
-    idea:idea,
-    created:new Date().toLocaleDateString(),
-    tasks:[
-      'Describe the problem your idea solves.',
-      'Identify who would benefit from your idea.',
-      'Talk to three potential users and ask what they need.',
-      'List the simplest version you could build.',
-      'Estimate the costs and resources needed.'
-    ]
-  };
-  const projects=getProjects();
-  projects.unshift(project);
-  try{
-    localStorage.setItem('nexusOneProjects',JSON.stringify(projects));
-  }catch(err){
-    show('Your browser could not save this project. Check your device storage settings.');
+
+function setStatus(message) {
+  status.textContent = message;
+}
+
+function setBusy(busy) {
+  ["signupBtn", "loginBtn", "logoutBtn", "createBtn", "viewBtn"].forEach(id => {
+    $(id).disabled = busy;
+  });
+}
+
+function updateUser(user) {
+  currentUser = user || null;
+  $("logoutBtn").classList.toggle("hidden", !currentUser);
+  setStatus(currentUser
+    ? "Signed in as " + currentUser.email
+    : "You are signed out. Sign in to save projects online.");
+}
+
+function errorMessage(error) {
+  const message = error && error.message ? error.message : String(error);
+  if (message.toLowerCase().includes("failed to fetch")) {
+    return "Could not reach Supabase. Check your internet connection and project URL.";
+  }
+  return message;
+}
+
+async function signUp() {
+  const email = $("email").value.trim();
+  const password = $("password").value;
+
+  if (!email || !password) {
+    setStatus("Enter your email address and password.");
     return;
   }
-  show('PROJECT CREATED: '+project.title+'\n\nTYPE: '+project.type+'\nCREATED: '+project.created+'\n\nYOUR FIRST STEPS\n\n1. '+project.tasks.join('\n\n').replace(/\n\n/g,'\n\n'));
+  if (password.length < 6) {
+    setStatus("Please use a password with at least 6 characters.");
+    return;
+  }
+
+  setBusy(true);
+  try {
+    const {data, error} = await getClient().auth.signUp({email, password});
+    if (error) throw error;
+
+    if (data.session) {
+      updateUser(data.session.user);
+      setStatus("Your account is created and you are signed in.");
+    } else {
+      setStatus("Registration submitted. Check your email for a verification link. After verifying, return and sign in.");
+    }
+  } catch (error) {
+    setStatus("Sign-up error: " + errorMessage(error));
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function signIn() {
+  const email = $("email").value.trim();
+  const password = $("password").value;
+
+  if (!email || !password) {
+    setStatus("Enter your email address and password.");
+    return;
+  }
+
+  setBusy(true);
+  try {
+    const {data, error} = await getClient().auth.signInWithPassword({email, password});
+    if (error) throw error;
+    updateUser(data.user);
+    setStatus("Signed in successfully.");
+    await loadProjects();
+  } catch (error) {
+    setStatus("Sign-in error: " + errorMessage(error));
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function signOut() {
+  setBusy(true);
+  try {
+    const {error} = await getClient().auth.signOut();
+    if (error) throw error;
+    updateUser(null);
+    show("You have signed out. Your online projects remain saved to your account.");
+  } catch (error) {
+    setStatus("Sign-out error: " + errorMessage(error));
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function loadProjects() {
+  if (!currentUser) {
+    show("Please sign in before viewing your online projects.");
+    return;
+  }
+
+  setBusy(true);
+  try {
+    const {data, error} = await getClient()
+      .from("nexus_projects")
+      .select("id,title,description,project_type,status,created_at")
+      .order("created_at", {ascending:false});
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      show("YOUR SAVED PROJECTS\n\nNo online projects yet. Create your first project above.");
+      return;
+    }
+
+    show("YOUR ONLINE PROJECTS\n\n" + data.map((p, i) =>
+      (i + 1) + ". " + p.title +
+      "\nType: " + p.project_type +
+      "\nStatus: " + p.status +
+      "\nCreated: " + new Date(p.created_at).toLocaleString() +
+      "\nIdea: " + (p.description || "")
+    ).join("\n\n"));
+  } catch (error) {
+    show("Could not load projects: " + errorMessage(error));
+  } finally {
+    setBusy(false);
+  }
+}
+
+$("projectForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (!currentUser) {
+    show("Please create an account or sign in before saving a project online.");
+    return;
+  }
+
+  const title = $("title").value.trim();
+  const idea = $("idea").value.trim();
+  const type = $("type").value;
+
+  if (!title || !idea) {
+    show("Please enter a project name and describe your idea.");
+    return;
+  }
+
+  const tasks = [
+    "Describe the problem your idea solves.",
+    "Identify who would benefit from your idea.",
+    "Talk to three potential users and ask what they need.",
+    "List the simplest version you could build.",
+    "Estimate the costs and resources needed."
+  ];
+
+  setBusy(true);
+  try {
+    const {error} = await getClient().from("nexus_projects").insert({
+      user_id: currentUser.id,
+      title,
+      description: idea,
+      project_type: type,
+      status: "active"
+    });
+
+    if (error) throw error;
+
+    show("PROJECT SAVED ONLINE: " + title +
+      "\n\nTYPE: " + type +
+      "\n\nYOUR FIRST STEPS\n\n" +
+      tasks.map((task, i) => (i + 1) + ". " + task).join("\n\n"));
+
+    $("projectForm").reset();
+  } catch (error) {
+    show("Could not save your project: " + errorMessage(error));
+  } finally {
+    setBusy(false);
+  }
 });
-document.getElementById('viewBtn').addEventListener('click',function(){
-  const projects=getProjects();
-  if(!projects.length){show('No saved projects yet. Create your first project above.');return}
-  show('YOUR SAVED PROJECTS\n\n'+projects.map((p,i)=>(i+1)+'. '+p.title+'\nType: '+p.type+'\nCreated: '+p.created+'\nIdea: '+p.idea).join('\n\n'));
-});
-</script> 
-<script
-src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</body>
-        </html>
+
+$("signupBtn").addEventListener("click", signUp);
+$("loginBtn").addEventListener("click", signIn);
+$("logoutBtn").addEventListener("click", signOut);
+$("viewBtn").addEventListener("click", loadProjects);
+
+(async function initialise() {
+  try {
+    const {data, error} = await getClient().auth.getSession();
+    if (error) throw error;
+    updateUser(data.session ? data.session.user : null);
+
+    getClient().auth.onAuthStateChange((_event, session) => {
+      updateUser(session ? session.user : null);
+    });
+  } catch (error) {
+    setStatus("Connection setup error: " + errorMessage(error));
+  }
+})();
+</script></body>
+ </html>
