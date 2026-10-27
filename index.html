@@ -2,662 +2,907 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#090e1c">
-<meta name="description" content="NEXUS ONE — Plan ideas, manage projects, and build your future.">
-<title>NEXUS ONE | Your Ideas, In Motion</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<title>NEXUS ONE — Your Personal Workspace</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root{
- --bg:#090e1c;--surface:#10192c;--surface2:#17233b;
- --border:#293854;--text:#f5f7ff;--muted:#9ba9c3;
- --purple:#8b5cf6;--cyan:#38bdf8;--green:#34d399;
- --red:#fb7185;--radius:18px;
+:root {
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --ink:#172033;
+  --muted:#718096;
+  --primary:#645bfa;
+  --primary-dark:#5046df;
+  --border:#e7eaf2;
+  --green:#16845b;
+  --red:#c33d4b;
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
- margin:0;background:var(--bg);color:var(--text);
- font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);
+  color:var(--ink);
 }
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-button:disabled{opacity:.55;cursor:not-allowed}
-button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
- outline:2px solid var(--cyan);outline-offset:2px
+button,input,textarea,select { font:inherit; }
+button { cursor:pointer; }
+button:disabled { opacity:.55; cursor:wait; }
+.app { min-height:100vh; }
+header {
+  height:70px;
+  background:#101827;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 5%;
+  gap:15px;
 }
-.app{min-height:100vh;display:flex}
-.sidebar{
- width:245px;flex-shrink:0;padding:25px 16px;
- background:#0c1324;border-right:1px solid var(--border);
- display:flex;flex-direction:column
+.brand { font-size:20px; font-weight:850; letter-spacing:1px; }
+.brand span { color:#a8a2ff; }
+.header-right { display:flex; align-items:center; gap:12px; }
+.badge {
+  font-size:12px;
+  padding:7px 11px;
+  background:#253148;
+  border-radius:30px;
+  color:#dbe2f1;
 }
-.logo{font-size:25px;font-weight:900;letter-spacing:-1px}
-.logo span{color:#a78bfa}
-.tagline{font-size:12px;color:var(--muted);margin-top:5px}
-.nav-label{
- color:#7788a6;font-size:10px;letter-spacing:1.7px;
- text-transform:uppercase;margin:30px 10px 10px
+main { max-width:1100px; margin:0 auto; padding:30px 22px 110px; }
+.page { display:none; }
+.page.active { display:block; }
+.hero {
+  background:linear-gradient(125deg,#191e3b,#4037a6 75%,#7166ff);
+  border-radius:24px;
+  color:white;
+  padding:42px;
+  margin-bottom:24px;
+  position:relative;
+  overflow:hidden;
 }
-.nav-btn{
- width:100%;display:flex;align-items:center;gap:12px;
- padding:12px;border:1px solid transparent;border-radius:12px;
- background:transparent;color:var(--muted);text-align:left;margin:3px 0
+.eyebrow {
+  text-transform:uppercase;
+  letter-spacing:2px;
+  font-size:11px;
+  font-weight:800;
+  opacity:.8;
 }
-.nav-btn:hover,.nav-btn.active{
- background:var(--surface2);border-color:var(--border);color:white
+.hero h1 { font-size:clamp(32px,5vw,52px); line-height:1.1; margin:15px 0; }
+.hero p { line-height:1.8; max-width:600px; color:#e2e3ff; }
+.hero-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:24px; }
+.btn {
+  border:0;
+  border-radius:11px;
+  padding:12px 17px;
+  background:var(--primary);
+  color:white;
+  font-weight:700;
 }
-.nav-icon{width:22px;text-align:center}
-.sidebar-bottom{margin-top:auto;border-top:1px solid var(--border);padding-top:18px}
-.main{flex:1;min-width:0;padding:30px}
-.topbar{
- display:flex;justify-content:space-between;align-items:center;
- gap:15px;margin:0 auto 26px;max-width:1150px
+.btn:hover { background:var(--primary-dark); }
+.btn.light { background:white; color:#302b87; }
+.btn.outline { background:transparent; border:1px solid var(--border); color:var(--ink); }
+.btn.danger { background:#fff0f1; color:var(--red); }
+.btn.small { padding:8px 11px; font-size:12px; }
+.grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.grid.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:22px;
+  margin-bottom:16px;
+  min-width:0;
 }
-.topbar h1{font-size:26px;margin:4px 0}
-.eyebrow{color:#b8a4ff;font-size:10px;font-weight:800;letter-spacing:2px}
-.status{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
-.content{max-width:1150px;margin:auto}
-.section{display:none}
-.section.active{display:block;animation:appear .18s ease}
-@keyframes appear{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.hero{
- padding:34px;border:1px solid #40366d;border-radius:24px;
- background:radial-gradient(ellipse at top right,#3b2671 0,transparent 48%),
- linear-gradient(135deg,#17152f,#11253c);
- margin-bottom:20px
+.card h2,.card h3 { margin-top:0; }
+.card p { color:var(--muted); line-height:1.65; }
+.stat { font-size:32px; font-weight:850; margin:12px 0 4px; }
+.label { color:var(--muted); font-size:13px; }
+.section-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin:30px 0 17px;
 }
-.hero h2{font-size:clamp(30px,5vw,48px);line-height:1.1;letter-spacing:-1.6px;margin:14px 0}
-.hero p{color:#c4cde1;line-height:1.8;max-width:620px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.stats{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:18px}
-.card{
- background:var(--surface);border:1px solid var(--border);
- border-radius:var(--radius);padding:22px;min-width:0
+.section-head h2 { margin:0; }
+input,textarea,select {
+  width:100%;
+  padding:12px 13px;
+  border:1px solid #dce1ed;
+  border-radius:10px;
+  background:white;
+  color:var(--ink);
+  margin:7px 0 15px;
 }
-.card h3{font-size:17px;margin:0 0 10px}
-.card p{font-size:14px;color:var(--muted);line-height:1.7}
-.stat-label{font-size:11px;color:var(--muted);letter-spacing:1px}
-.stat-number{font-size:30px;font-weight:850;margin-top:10px}
-.muted{color:var(--muted)}
-.small{font-size:12px}
-.btn{
- padding:11px 15px;border:0;border-radius:10px;
- color:white;background:var(--purple);font-weight:750
+textarea { min-height:110px; resize:vertical; }
+label { display:block; font-weight:700; font-size:13px; margin-top:10px; }
+.form { max-width:600px; }
+.project {
+  background:white;
+  border:1px solid var(--border);
+  padding:19px;
+  border-radius:15px;
+  margin-bottom:12px;
 }
-.btn:hover{filter:brightness(1.12)}
-.btn.secondary{background:#273653}
-.btn.outline{background:transparent;border:1px solid var(--border)}
-.btn.danger{background:#812a40}
-.btn.success{background:#096b50}
-.btn-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
-.field{margin:15px 0}
-label{display:block;font-size:13px;margin-bottom:8px;color:#dce5f7}
-input,textarea,select{
- width:100%;padding:13px;border-radius:11px;
- background:#0b1324;border:1px solid var(--border);color:white
+.project-top {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
 }
-textarea{min-height:115px;resize:vertical}
-input::placeholder,textarea::placeholder{color:#71809c}
-.notice{
- display:none;max-width:1150px;margin:0 auto 18px;padding:13px 15px;
- border:1px solid var(--border);border-radius:12px;
- line-height:1.6;overflow-wrap:anywhere
+.project h3 { margin:0 0 8px; overflow-wrap:anywhere; }
+.project p { color:var(--muted); line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere; }
+.project-meta { color:var(--muted); font-size:12px; margin:12px 0; }
+.project-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.status {
+  font-size:11px;
+  padding:6px 9px;
+  background:#e9f8f0;
+  color:#18754e;
+  border-radius:20px;
+  white-space:nowrap;
 }
-.notice.show{display:block}
-.notice.error{border-color:#a63c53;color:#fecdd3;background:#301421}
-.notice.good{border-color:#247b61;color:#a7f3d0;background:#102a27}
-.project{
- padding:17px;background:#0d1628;border:1px solid var(--border);
- border-radius:14px;margin-top:12px;min-width:0
+.status.completed { background:#e7f0ff; color:#2b57a5; }
+.status.archived { background:#f0f1f5; color:#606979; }
+.notice {
+  padding:12px 14px;
+  background:#f0efff;
+  color:#39328d;
+  border-radius:11px;
+  margin:12px 0;
+  line-height:1.6;
+  overflow-wrap:anywhere;
 }
-.project h3{overflow-wrap:anywhere}
-.project p{white-space:pre-wrap;overflow-wrap:anywhere}
-.badge{
- display:inline-block;padding:4px 9px;border-radius:20px;
- background:#2a2050;color:#ddd6fe;font-size:11px;margin:2px 5px 2px 0
+.notice.error { background:#fff0f1; color:#a12b3b; }
+.notice.success { background:#eaf9f1; color:#176746; }
+.empty {
+  padding:30px 15px;
+  border:1px dashed #cbd1e0;
+  border-radius:14px;
+  text-align:center;
+  color:var(--muted);
+  line-height:1.7;
 }
-.empty{
- text-align:center;padding:30px 16px;border:1px dashed var(--border);
- border-radius:14px;color:var(--muted);line-height:1.7
+.bottom-nav {
+  position:fixed;
+  z-index:10;
+  bottom:0;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:center;
+  gap:3px;
+  background:rgba(255,255,255,.97);
+  border-top:1px solid var(--border);
+  padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+  overflow-x:auto;
 }
-ol{padding-left:22px}
-ol li{padding:6px 0;line-height:1.65;color:#d8e0f2}
-hr{border:0;border-top:1px solid var(--border);margin:22px 0}
-footer{max-width:1150px;margin:30px auto 0;padding:20px 0;color:var(--muted);font-size:12px}
-.mobile-nav{display:none}
-@media(max-width:800px){
- .sidebar{display:none}
- .main{padding:20px 14px 105px}
- .topbar{align-items:flex-start}
- .topbar h1{font-size:22px}
- .hero{padding:24px 19px}
- .grid,.stats{grid-template-columns:1fr}
- .mobile-nav{
-  display:flex;position:fixed;bottom:0;left:0;right:0;z-index:50;
-  overflow-x:auto;overscroll-behavior-x:contain;
-  background:#0c1324;border-top:1px solid var(--border);
-  padding:7px 5px calc(7px + env(safe-area-inset-bottom));
-  scrollbar-width:thin
- }
- .mobile-nav button{
-  flex:0 0 76px;min-width:76px;border:0;border-radius:10px;
-  background:transparent;color:var(--muted);padding:9px 3px;font-size:11px
- }
- .mobile-nav button.active{background:var(--surface2);color:white}
+.nav-btn {
+  flex:1;
+  max-width:145px;
+  min-width:58px;
+  border:0;
+  background:transparent;
+  color:#7b8498;
+  padding:8px 5px;
+  border-radius:10px;
+  font-size:11px;
+}
+.nav-btn span { display:block; font-size:19px; margin-bottom:3px; }
+.nav-btn.active { background:#efeeff; color:#5148dc; font-weight:800; }
+.small-muted { font-size:12px; color:var(--muted); line-height:1.6; }
+footer { text-align:center; padding:15px; color:var(--muted); font-size:12px; }
+hr { border:0; border-top:1px solid var(--border); margin:20px 0; }
+@media(max-width:700px) {
+  main { padding:18px 14px 110px; }
+  header { padding:0 16px; height:62px; }
+  .brand { font-size:17px; }
+  .hero { padding:27px 22px; border-radius:18px; }
+  .grid,.grid.two { grid-template-columns:1fr; gap:10px; }
+  .card { padding:18px; }
+  .badge { font-size:10px; }
+  .nav-btn { font-size:10px; }
+  .nav-btn span { font-size:18px; }
 }
 </style>
 </head>
 
 <body>
 <div class="app">
-<aside class="sidebar">
- <div class="logo">NEXUS<span> ONE</span></div>
- <div class="tagline">Your ideas. Your future.</div>
- <div class="nav-label">Workspace</div>
- <button class="nav-btn active" data-page="home"><span class="nav-icon">⌂</span>Home</button>
- <button class="nav-btn" data-page="dashboard"><span class="nav-icon">▦</span>Dashboard</button>
- <button class="nav-btn" data-page="projects"><span class="nav-icon">▤</span>My Projects</button>
- <button class="nav-btn" data-page="planner"><span class="nav-icon">✦</span>Idea Planner</button>
- <div class="nav-label">Account</div>
- <button class="nav-btn" data-page="settings"><span class="nav-icon">⚙</span>Settings</button>
- <button class="nav-btn" data-page="help"><span class="nav-icon">?</span>Help & Support</button>
- <button class="nav-btn" data-page="account"><span class="nav-icon">♙</span>Account / Sign in</button>
- <div class="sidebar-bottom">
-  <div class="small muted">YOUR ACCOUNT</div>
-  <p id="sideEmail" class="small">Guest mode</p>
-  <button class="btn secondary" style="width:100%" data-page="account">Open account</button>
- </div>
-</aside>
 
-<main class="main">
- <header class="topbar">
-  <div><div class="eyebrow">YOUR PERSONAL WORKSPACE</div><h1 id="pageTitle">Home</h1></div>
-  <div class="status" id="accountStatus">Guest mode</div>
- </header>
- <div id="notice" class="notice" role="status" aria-live="polite"></div>
+<header>
+  <div class="brand">NEXUS <span>ONE</span></div>
+  <div class="header-right">
+    <span id="authBadge" class="badge">Connecting...</span>
+    <button class="btn small" id="headerAuth" onclick="openAuth()">Sign in</button>
+  </div>
+</header>
 
- <div class="content">
- <!-- HOME -->
- <section class="section active" id="home">
+<main>
+
+<section class="page active" id="page-home">
   <div class="hero">
-   <div class="eyebrow">WELCOME TO NEXUS ONE</div>
-   <h2>Big ideas deserve<br>a real plan.</h2>
-   <p>One organized workspace to turn your ideas into projects, break down your next steps, and keep your work moving forward.</p>
-   <div class="btn-row">
-    <button class="btn" data-go="planner">Start a project →</button>
-    <button class="btn secondary" data-go="projects">Explore my projects</button>
-   </div>
+    <div class="eyebrow">Welcome to NEXUS ONE</div>
+    <h1>Big ideas deserve<br>a real plan.</h1>
+    <p>One organized workspace to turn your ideas into projects, break down your next steps, and keep your work moving forward.</p>
+    <div class="hero-actions">
+      <button class="btn light" onclick="newProject()">Start a project →</button>
+      <button class="btn" onclick="navigate('projects')">Explore my projects</button>
+    </div>
   </div>
-  <div class="grid stats">
-   <div class="card"><div class="stat-label">TOTAL PROJECTS</div><div class="stat-number" id="homeTotal">—</div></div>
-   <div class="card"><div class="stat-label">COMPLETED</div><div class="stat-number" id="homeCompleted">—</div></div>
-   <div class="card"><div class="stat-label">ACCOUNT</div><div class="stat-number" style="font-size:20px" id="homeAccount">Guest</div></div>
-  </div>
+
   <div class="grid">
-   <div class="card"><h3>✦ Plan with purpose</h3><p>Turn a business, technology, or personal idea into a starter checklist.</p><button class="btn" data-go="planner">Open planner</button></div>
-   <div class="card"><h3>▤ Keep everything organized</h3><p>Access saved projects, edit descriptions, and update project status.</p><button class="btn secondary" data-go="projects">View projects</button></div>
+    <div class="card">
+      <div class="label">TOTAL PROJECTS</div>
+      <div class="stat" id="homeTotal">—</div>
+      <div class="small-muted">Projects in your workspace</div>
+    </div>
+    <div class="card">
+      <div class="label">COMPLETED</div>
+      <div class="stat" id="homeCompleted">—</div>
+      <div class="small-muted">Projects marked completed</div>
+    </div>
+    <div class="card">
+      <div class="label">ACCOUNT</div>
+      <div class="stat" id="homeAccount" style="font-size:19px">Guest</div>
+      <div class="small-muted" id="homeAccountHint">Sign in to save projects online</div>
+    </div>
   </div>
- </section>
 
- <!-- DASHBOARD -->
- <section class="section" id="dashboard">
-  <div class="hero"><div class="eyebrow">YOUR PROGRESS</div><h2>Make progress visible.</h2><p>See your saved work and keep track of your project status.</p><button class="btn" id="refreshDashboard">Refresh dashboard</button></div>
-  <div class="grid stats">
-   <div class="card"><div class="stat-label">ALL PROJECTS</div><div class="stat-number" id="dashTotal">—</div></div>
-   <div class="card"><div class="stat-label">ACTIVE</div><div class="stat-number" id="dashActive">—</div></div>
-   <div class="card"><div class="stat-label">COMPLETED</div><div class="stat-number" id="dashCompleted">—</div></div>
+  <div class="grid two" style="margin-top:16px">
+    <div class="card">
+      <h3>✦ Plan with purpose</h3>
+      <p>Turn a business, technology, or personal idea into a starter checklist.</p>
+      <button class="btn" onclick="navigate('planner')">Open planner</button>
+    </div>
+    <div class="card">
+      <h3>▤ Keep everything organized</h3>
+      <p>Access saved projects, edit descriptions, and update project status.</p>
+      <button class="btn" onclick="navigate('projects')">View projects</button>
+    </div>
   </div>
-  <div class="card"><h3>Recent projects</h3><div id="recentProjects" class="muted">Sign in to view your projects.</div></div>
- </section>
+</section>
 
- <!-- PROJECTS -->
- <section class="section" id="projects">
+<section class="page" id="page-dashboard">
+  <div class="section-head"><h2>Your dashboard</h2></div>
+  <p>See the projects saved in your personal workspace.</p>
+  <div class="grid">
+    <div class="card"><div class="label">ALL PROJECTS</div><div class="stat" id="dashTotal">0</div></div>
+    <div class="card"><div class="label">ACTIVE</div><div class="stat" id="dashActive">0</div></div>
+    <div class="card"><div class="label">COMPLETED</div><div class="stat" id="dashCompleted">0</div></div>
+  </div>
   <div class="card">
-   <h3>My Projects</h3><p>Your projects are saved online in your account.</p>
-   <div class="btn-row"><button class="btn" id="refreshProjects">Refresh</button><button class="btn secondary" data-go="planner">+ New project</button></div>
-   <div id="projectList" style="margin-top:16px"><div class="empty">Sign in to load your projects.</div></div>
+    <h3>Workspace status</h3>
+    <p id="dashboardMessage">Checking your workspace...</p>
+    <button class="btn" onclick="loadProjects()">Refresh projects</button>
   </div>
- </section>
+</section>
 
- <!-- PLANNER -->
- <section class="section" id="planner">
-  <div class="hero"><div class="eyebrow">IDEA → PLAN → ACTION</div><h2>Give your idea direction.</h2><p>Create a starter plan and save your project to your workspace.</p></div>
-  <div class="grid">
-   <div class="card">
-    <h3>Project details</h3>
-    <form id="projectForm">
-     <div class="field"><label for="projectTitle">Project name</label><input id="projectTitle" maxlength="120" required placeholder="e.g. My online business"></div>
-     <div class="field"><label for="projectType">Category</label>
+<section class="page" id="page-projects">
+  <div class="section-head">
+    <h2>My projects</h2>
+    <button class="btn" onclick="newProject()">+ New project</button>
+  </div>
+  <div id="projectNotice" aria-live="polite"></div>
+  <div id="projectList"><div class="empty">Loading your workspace...</div></div>
+</section>
+
+<section class="page" id="page-planner">
+  <div class="section-head"><h2>Project planner</h2></div>
+  <div class="card">
+    <h3>Turn an idea into a starting plan</h3>
+    <p>Choose a template, describe your idea, and create a project you can develop step by step.</p>
+    <label for="plannerType">What kind of idea is it?</label>
+    <select id="plannerType">
+      <option value="business">Business or startup</option>
+      <option value="technology">Technology or app</option>
+      <option value="personal">Personal goal</option>
+      <option value="education">Education or learning</option>
+      <option value="creative">Creative project</option>
+    </select>
+    <label for="plannerTitle">Project name</label>
+    <input id="plannerTitle" maxlength="120" placeholder="e.g. My online business">
+    <label for="plannerDescription">Describe your idea</label>
+    <textarea id="plannerDescription" maxlength="5000" placeholder="What do you want to build or achieve?"></textarea>
+    <button class="btn" onclick="createFromPlanner()">Create my starter plan →</button>
+    <p class="small-muted">This planner currently uses predefined starter steps. It does not yet connect to a real AI model.</p>
+  </div>
+  <div class="card" id="starterPlan">
+    <h3>Starter checklist</h3>
+    <p>Select a project type to see suggested first steps.</p>
+  </div>
+</section>
+
+<section class="page" id="page-settings">
+  <div class="section-head"><h2>Settings</h2></div>
+  <div class="card">
+    <h3>Account and workspace</h3>
+    <p id="settingsAccount">You are using guest mode.</p>
+    <button class="btn" onclick="openAuth()">Sign in or create account</button>
+    <button class="btn outline" onclick="refreshAccount()" style="margin-left:6px">Refresh account</button>
+    <hr>
+    <h3>Data and privacy</h3>
+    <p>Your projects are intended to be stored in your Supabase database. Only save information you are comfortable putting into this app.</p>
+    <p class="small-muted">The public browser key is not a password. Database access must be protected with Row Level Security policies.</p>
+  </div>
+</section>
+
+<section class="page" id="page-help">
+  <div class="section-head"><h2>Help & support</h2></div>
+  <div class="card">
+    <h3>Getting started</h3>
+    <p><b>1. Create an account.</b><br>Use your email address to register or sign in.</p>
+    <p><b>2. Create a project.</b><br>Give your idea a title and describe what you want to achieve.</p>
+    <p><b>3. Keep it updated.</b><br>Edit the project, change its status, or remove it when appropriate.</p>
+    <p><b>4. Use the planner.</b><br>Choose a template to get suggested starter steps.</p>
+  </div>
+  <div class="card">
+    <h3>Connection troubleshooting</h3>
+    <p>If projects fail to load, check your internet connection and confirm that the Supabase project is active and its database policies are configured.</p>
+    <p>If account confirmation is enabled, check your email for the confirmation message after registration.</p>
+  </div>
+</section>
+
+<section class="page" id="page-account">
+  <div class="section-head"><h2>Your account</h2></div>
+  <div class="card">
+    <div id="accountDetails">You are currently browsing as a guest.</div>
+    <div id="authNotice" aria-live="polite"></div>
+
+    <div id="authForms">
+      <div class="form">
+        <h3>Create an account or sign in</h3>
+        <p>Use your email address to access your workspace.</p>
+        <label for="authEmail">Email address</label>
+        <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com">
+        <label for="authPassword">Password</label>
+        <input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="At least 6 characters">
+        <button class="btn" id="loginButton" onclick="signIn()">Sign in</button>
+        <button class="btn outline" id="signupButton" onclick="signUp()" style="margin-left:5px">Create account</button>
+        <p class="small-muted">Use an email address you can access. Never share your password with anyone.</p>
+      </div>
+    </div>
+
+    <div id="signedInActions" style="display:none">
+      <p>You are signed in. Your projects can be saved to your account.</p>
+      <button class="btn danger" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-editor">
+  <div class="section-head">
+    <h2 id="editorHeading">Create a project</h2>
+    <button class="btn outline" onclick="navigate('projects')">← Back to projects</button>
+  </div>
+  <div class="card">
+    <div id="editorNotice" aria-live="polite"></div>
+    <form id="projectForm" class="form">
+      <input type="hidden" id="projectId">
+      <label for="projectTitle">Project title</label>
+      <input id="projectTitle" maxlength="120" required placeholder="Give your idea a name">
+      <label for="projectType">Project type</label>
       <select id="projectType">
-       <option value="business">Business</option><option value="technology">Technology / App</option>
-       <option value="education">Education</option><option value="content">Content creation</option>
-       <option value="personal">Personal goal</option><option value="other">Other</option>
+        <option value="business">Business</option>
+        <option value="technology">Technology</option>
+        <option value="personal">Personal goal</option>
+        <option value="education">Education</option>
+        <option value="creative">Creative</option>
       </select>
-     </div>
-     <div class="field"><label for="projectIdea">Describe your idea</label><textarea id="projectIdea" maxlength="5000" required placeholder="What do you want to build? Who is it for? What do you want to achieve?"></textarea></div>
-     <div class="btn-row"><button class="btn" id="saveBtn" type="submit">Create and save plan</button><button class="btn outline" id="cancelEdit" type="button" hidden>Cancel edit</button></div>
+      <label for="projectDescription">Description and next steps</label>
+      <textarea id="projectDescription" maxlength="5000" placeholder="Describe your idea and the next steps..."></textarea>
+      <label for="projectStatus">Status</label>
+      <select id="projectStatus">
+        <option value="active">Active</option>
+        <option value="completed">Completed</option>
+        <option value="archived">Archived</option>
+      </select>
+      <button class="btn" id="saveProjectButton" type="submit">Save project</button>
+      <button class="btn outline" type="button" onclick="navigate('projects')">Cancel</button>
     </form>
-   </div>
-   <div class="card"><h3>Your starter plan</h3><p>This version uses predefined planning templates, not a live AI model.</p><div id="planOutput" class="muted">Choose a category to preview a starter checklist.</div></div>
   </div>
- </section>
+</section>
 
- <!-- SETTINGS -->
- <section class="section" id="settings">
-  <div class="card"><h3>Settings</h3><p>Manage your account session and see your current sign-in status.</p>
-   <div class="field"><label for="settingsEmail">Account email</label><input id="settingsEmail" readonly value="Not signed in"></div>
-   <div class="btn-row"><button class="btn" data-go="account">Account / Sign in</button><button class="btn danger" id="settingsSignOut" disabled>Sign out</button></div>
-   <hr><h3>Privacy reminder</h3><p>Use a password you don't share with anyone. Do not place passwords, financial secrets, or sensitive personal information in project descriptions.</p>
-  </div>
- </section>
-
- <!-- HELP -->
- <section class="section" id="help">
-  <div class="card">
-   <h3>Help & Support</h3>
-   <p><strong>Creating an account:</strong> Open Account / Sign in, enter your email and password, then create an account or sign in.</p>
-   <hr>
-   <p><strong>Saving projects:</strong> Sign in first. Open Idea Planner, enter a title and description, then select Create and save plan.</p>
-   <hr>
-   <p><strong>Editing projects:</strong> Open My Projects and select Edit. Save the changes in the planner.</p>
-   <hr>
-   <p><strong>AI functionality:</strong> The current planner creates template-based starter checklists. A real AI model and secure backend have not yet been connected.</p>
-   <hr>
-   <p><strong>If something fails:</strong> Read the error message and check your internet connection. Never share your password or private server keys.</p>
-  </div>
- </section>
-
- <!-- ACCOUNT -->
- <section class="section" id="account">
-  <div class="grid">
-   <div class="card">
-    <div class="eyebrow">YOUR NEXUS ID</div><h3>Welcome back.</h3>
-    <p>Sign in to access your online workspace from your devices.</p>
-    <form id="authForm">
-     <div class="field"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com"></div>
-     <div class="field"><label for="password">Password</label><input id="password" type="password" minlength="6" autocomplete="current-password" required placeholder="At least 6 characters"></div>
-     <div class="btn-row"><button class="btn" id="createAccount" type="button">Create account</button><button class="btn secondary" type="submit">Sign in</button></div>
-    </form>
-    <p class="small muted">If email verification is enabled, check your inbox after registering.</p>
-    <button class="btn danger" id="signOut" hidden>Sign out</button>
-   </div>
-   <div class="card"><h3>Your workspace, wherever you are.</h3><p>Save your projects online, return to your ideas, and continue working when you sign in again.</p><div class="badge">Email authentication</div><div class="badge">Online project storage</div><div class="badge">Mobile-friendly</div></div>
-  </div>
- </section>
- </div>
- <footer>NEXUS ONE · A workspace for your next big idea.</footer>
+<footer>NEXUS ONE · A workspace for your next big idea.</footer>
 </main>
+
+<nav class="bottom-nav" aria-label="Main navigation">
+  <button class="nav-btn active" data-page="home" onclick="navigate('home')"><span>⌂</span>Home</button>
+  <button class="nav-btn" data-page="dashboard" onclick="navigate('dashboard')"><span>▦</span>Dashboard</button>
+  <button class="nav-btn" data-page="projects" onclick="navigate('projects')"><span>▤</span>Projects</button>
+  <button class="nav-btn" data-page="planner" onclick="navigate('planner')"><span>✦</span>Planner</button>
+  <button class="nav-btn" data-page="settings" onclick="navigate('settings')"><span>⚙</span>Settings</button>
+  <button class="nav-btn" data-page="help" onclick="navigate('help')"><span>?</span>Help</button>
+  <button class="nav-btn" data-page="account" onclick="navigate('account')"><span>♙</span>Account</button>
+</nav>
 </div>
 
-<nav class="mobile-nav" aria-label="Main navigation">
- <button class="active" data-page="home">⌂<br>Home</button>
- <button data-page="dashboard">▦<br>Dashboard</button>
- <button data-page="projects">▤<br>Projects</button>
- <button data-page="planner">✦<br>Planner</button>
- <button data-page="settings">⚙<br>Settings</button>
- <button data-page="help">?<br>Help</button>
- <button data-page="account">♙<br>Account</button>
-</nav>
-
 <script>
-(() => {
 "use strict";
 
-// Keep the existing NEXUS ONE Supabase project.
+/* NEXUS ONE — Supabase configuration */
 const SUPABASE_URL = "https://nboabadorztgosklmjkx.supabase.co";
+const SUPABASE_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ib2FiYWRvcnp0Z29za2xtamt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwNzEwMDEsImV4cCI6MjEwODY0NzAwMX0.wCvt4YojqU2eXghtGXuQKFI-v0k9MPXgBq5YsNVIusI";
 
-// Paste your existing PUBLIC anon/publishable key here.
-// Never use a service_role or secret key in frontend code.
-const SUPABASE_PUBLIC_KEY = "PASTE_YOUR_SUPABASE_PUBLIC_KEY_HERE";
-
-const $ = id => document.getElementById(id);
-let supabaseClient = null;
+let db = null;
 let currentUser = null;
 let projects = [];
-let editingId = null;
-let noticeTimer;
+let connectionError = "";
+let busy = false;
 
-const pageTitles = {
- home:"Home",dashboard:"Dashboard",projects:"My Projects",
- planner:"Idea Planner",settings:"Settings",help:"Help & Support",account:"Account"
+const $ = id => document.getElementById(id);
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  })[char]);
+}
+
+function showNotice(id, message, kind="") {
+  const element = $(id);
+  if (!element) return;
+  element.innerHTML = message
+    ? '<div class="notice '+(kind === "error" ? "error" : kind === "success" ? "success" : "")+'">'+escapeHtml(message)+'</div>'
+    : "";
+}
+
+function navigate(page) {
+  document.querySelectorAll(".page").forEach(el => el.classList.remove("active"));
+  const target = $("page-"+page);
+  if (target) target.classList.add("active");
+
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.page === page);
+  });
+
+  if (page === "projects" || page === "dashboard" || page === "home") {
+    updateStats();
+  }
+  if (page === "projects") renderProjects();
+  if (page === "account") refreshAccount();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function openAuth() {
+  navigate("account");
+  $("authEmail").focus();
+}
+
+function updateAccountUI() {
+  const signedIn = !!currentUser;
+  $("authBadge").textContent = signedIn ? "Signed in" : "Guest mode";
+  $("headerAuth").textContent = signedIn ? "Account" : "Sign in";
+  $("homeAccount").textContent = signedIn
+    ? (currentUser.email || "Member") : "Guest";
+  $("homeAccountHint").textContent = signedIn
+    ? "Your account is connected" : "Sign in to save projects online";
+  $("settingsAccount").textContent = signedIn
+    ? "Signed in as " + currentUser.email
+    : "You are using guest mode. Sign in to save and access your projects online.";
+  $("accountDetails").textContent = signedIn
+    ? "Signed in as " + currentUser.email
+    : "You are currently browsing as a guest.";
+  $("authForms").style.display = signedIn ? "none" : "block";
+  $("signedInActions").style.display = signedIn ? "block" : "none";
+  $("headerAuth").onclick = signedIn
+    ? () => navigate("account") : openAuth;
+}
+
+function refreshAccount() {
+  updateAccountUI();
+}
+
+async function signIn() {
+  if (!db || busy) return;
+  const email = $("authEmail").value.trim();
+  const password = $("authPassword").value;
+  if (!email || !password) {
+    showNotice("authNotice", "Enter your email address and password.", "error");
+    return;
+  }
+  setBusy(true);
+  showNotice("authNotice", "Signing in...");
+  try {
+    const {data, error} = await db.auth.signInWithPassword({email, password});
+    if (error) throw error;
+    currentUser = data.user;
+    showNotice("authNotice", "Signed in successfully.", "success");
+    updateAccountUI();
+    await loadProjects();
+    navigate("home");
+  } catch (error) {
+    showNotice("authNotice", error.message || "Unable to sign in.", "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function signUp() {
+  if (!db || busy) return;
+  const email = $("authEmail").value.trim();
+  const password = $("authPassword").value;
+  if (!email || !password) {
+    showNotice("authNotice", "Enter your email address and password.", "error");
+    return;
+  }
+  if (password.length < 6) {
+    showNotice("authNotice", "Choose a password with at least 6 characters.", "error");
+    return;
+  }
+  setBusy(true);
+  showNotice("authNotice", "Creating your account...");
+  try {
+    const {data, error} = await db.auth.signUp({email, password});
+    if (error) throw error;
+
+    if (data.session) {
+      currentUser = data.user;
+      updateAccountUI();
+      await loadProjects();
+      showNotice("authNotice", "Account created. You are signed in.", "success");
+      navigate("home");
+    } else {
+      showNotice("authNotice", "Account created. Check your email for a confirmation link, then return here to sign in.", "success");
+    }
+  } catch (error) {
+    showNotice("authNotice", error.message || "Unable to create account.", "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function signOut() {
+  if (!db || busy) return;
+  setBusy(true);
+  try {
+    const {error} = await db.auth.signOut();
+    if (error) throw error;
+    currentUser = null;
+    projects = [];
+    updateAccountUI();
+    updateStats();
+    renderProjects();
+    showNotice("authNotice", "You have signed out.", "success");
+    navigate("home");
+  } catch (error) {
+    showNotice("authNotice", error.message || "Unable to sign out.", "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+function setBusy(value) {
+  busy = value;
+  ["loginButton","signupButton","saveProjectButton"].forEach(id => {
+    const el = $(id);
+    if (el) el.disabled = value;
+  });
+}
+
+function newProject(prefill={}) {
+  $("projectForm").reset();
+  $("projectId").value = "";
+  $("projectTitle").value = prefill.title || "";
+  $("projectType").value = prefill.type || "business";
+  $("projectDescription").value = prefill.description || "";
+  $("projectStatus").value = "active";
+  $("editorHeading").textContent = "Create a project";
+  showNotice("editorNotice", "");
+  navigate("editor");
+}
+
+function editProject(id) {
+  const project = projects.find(item => item.id === id);
+  if (!project) return;
+  $("projectId").value = project.id;
+  $("projectTitle").value = project.title || "";
+  $("projectType").value = project.project_type || "business";
+  $("projectDescription").value = project.description || "";
+  $("projectStatus").value = project.status || "active";
+  $("editorHeading").textContent = "Edit project";
+  showNotice("editorNotice", "");
+  navigate("editor");
+}
+
+$("projectForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!db) {
+    showNotice("editorNotice", "The database connection is not ready.", "error");
+    return;
+  }
+  if (!currentUser) {
+    showNotice("editorNotice", "Please sign in before saving a project.", "error");
+    return;
+  }
+  if (busy) return;
+
+  const id = $("projectId").value;
+  const record = {
+    user_id: currentUser.id,
+    title: $("projectTitle").value.trim(),
+    description: $("projectDescription").value.trim(),
+    project_type: $("projectType").value,
+    status: $("projectStatus").value,
+    updated_at: new Date().toISOString()
+  };
+
+  if (!record.title) {
+    showNotice("editorNotice", "Please enter a project title.", "error");
+    return;
+  }
+
+  setBusy(true);
+  showNotice("editorNotice", "Saving your project...");
+  try {
+    let result;
+    if (id) {
+      result = await db.from("nexus_projects")
+        .update({
+          title:record.title,
+          description:record.description,
+          project_type:record.project_type,
+          status:record.status,
+          updated_at:record.updated_at
+        })
+        .eq("id", id)
+        .eq("user_id", currentUser.id)
+        .select();
+    } else {
+      result = await db.from("nexus_projects")
+        .insert(record)
+        .select();
+    }
+    if (result.error) throw result.error;
+    if (!result.data || !result.data.length) {
+      throw new Error("No project was returned. Check your database policies.");
+    }
+    await loadProjects();
+    navigate("projects");
+    showNotice("projectNotice", id ? "Project updated successfully." : "Project saved successfully.", "success");
+  } catch (error) {
+    showNotice("editorNotice", error.message || "Unable to save project.", "error");
+  } finally {
+    setBusy(false);
+  }
+});
+
+async function deleteProject(id) {
+  if (!db || !currentUser) {
+    alert("Please sign in first.");
+    return;
+  }
+  const project = projects.find(item => item.id === id);
+  if (!project) return;
+  if (!confirm('Delete "' + project.title + '"? This cannot be undone.')) return;
+
+  try {
+    const {error} = await db.from("nexus_projects")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", currentUser.id);
+    if (error) throw error;
+    await loadProjects();
+    showNotice("projectNotice", "Project deleted.", "success");
+  } catch (error) {
+    showNotice("projectNotice", error.message || "Unable to delete project.", "error");
+  }
+}
+
+async function changeStatus(id, status) {
+  if (!db || !currentUser) return;
+  try {
+    const {error} = await db.from("nexus_projects")
+      .update({status, updated_at:new Date().toISOString()})
+      .eq("id", id)
+      .eq("user_id", currentUser.id);
+    if (error) throw error;
+    await loadProjects();
+    showNotice("projectNotice", "Project status updated.", "success");
+  } catch (error) {
+    showNotice("projectNotice", error.message || "Unable to update status.", "error");
+  }
+}
+
+async function loadProjects() {
+  if (!db) {
+    projects = [];
+    updateStats();
+    renderProjects();
+    return;
+  }
+  if (!currentUser) {
+    projects = [];
+    updateStats();
+    renderProjects();
+    $("dashboardMessage").textContent = "Sign in to view your saved projects.";
+    return;
+  }
+
+  $("projectList").innerHTML = '<div class="empty">Loading projects...</div>';
+  try {
+    const {data, error} = await db.from("nexus_projects")
+      .select("*")
+      .order("updated_at", {ascending:false});
+    if (error) throw error;
+    projects = data || [];
+    connectionError = "";
+    updateStats();
+    renderProjects();
+    $("dashboardMessage").textContent = projects.length
+      ? "Your saved projects are ready."
+      : "Your workspace is connected. Create your first project to get started.";
+  } catch (error) {
+    connectionError = error.message || "Unable to load projects.";
+    projects = [];
+    updateStats();
+    renderProjects();
+    $("dashboardMessage").textContent = "Database error: " + connectionError;
+  }
+}
+
+function updateStats() {
+  const total = projects.length;
+  const completed = projects.filter(p => p.status === "completed").length;
+  const active = projects.filter(p => p.status === "active").length;
+  $("homeTotal").textContent = currentUser ? total : "—";
+  $("homeCompleted").textContent = currentUser ? completed : "—";
+  $("dashTotal").textContent = total;
+  $("dashActive").textContent = active;
+  $("dashCompleted").textContent = completed;
+}
+
+function renderProjects() {
+  const container = $("projectList");
+  if (!container) return;
+
+  if (!currentUser) {
+    container.innerHTML = '<div class="empty">You are in guest mode.<br>Sign in to view and save projects online.<br><br><button class="btn" onclick="openAuth()">Sign in / Create account</button></div>';
+    return;
+  }
+  if (connectionError) {
+    container.innerHTML = '<div class="notice error">Could not load projects: '+escapeHtml(connectionError)+'</div><button class="btn" onclick="loadProjects()">Try again</button>';
+    return;
+  }
+  if (!projects.length) {
+    container.innerHTML = '<div class="empty">Your workspace is ready.<br>You have not created a project yet.<br><br><button class="btn" onclick="newProject()">Create your first project</button></div>';
+    return;
+  }
+
+  container.innerHTML = projects.map(p => {
+    const status = ["active","completed","archived"].includes(p.status) ? p.status : "active";
+    return `
+      <article class="project">
+        <div class="project-top">
+          <div>
+            <h3>${escapeHtml(p.title)}</h3>
+            <div class="label">${escapeHtml(p.project_type || "business")}</div>
+          </div>
+          <span class="status ${status}">${escapeHtml(status)}</span>
+        </div>
+        <p>${escapeHtml(p.description || "No description yet.")}</p>
+        <div class="project-meta">Last updated: ${escapeHtml(formatDate(p.updated_at || p.created_at))}</div>
+        <div class="project-actions">
+          <button class="btn small" onclick="editProject('${escapeHtml(p.id)}')">Edit</button>
+          <select aria-label="Project status" class="status-select" style="width:auto;margin:0;padding:7px" onchange="changeStatus('${escapeHtml(p.id)}',this.value)">
+            <option value="active" ${status==="active"?"selected":""}>Active</option>
+            <option value="completed" ${status==="completed"?"selected":""}>Completed</option>
+            <option value="archived" ${status==="archived"?"selected":""}>Archived</option>
+          </select>
+          <button class="btn small danger" onclick="deleteProject('${escapeHtml(p.id)}')">Delete</button>
+        </div>
+      </article>`;
+  }).join("");
+}
+
+function formatDate(value) {
+  if (!value) return "Not available";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "Not available" : date.toLocaleDateString();
+}
+
+const templates = {
+  business: [
+    "Describe the customer and the problem you will solve.",
+    "Research competitors and similar businesses.",
+    "List the first products or services you will offer.",
+    "Estimate startup costs and available resources.",
+    "Choose one small action to test your idea."
+  ],
+  technology: [
+    "Describe the problem your app or technology solves.",
+    "Identify the people who will use it.",
+    "List the three most important first-version features.",
+    "Sketch the main screens and user journey.",
+    "Build and test a small first version."
+  ],
+  personal: [
+    "Write down the result you want to achieve.",
+    "Choose a realistic target date.",
+    "Break the goal into small weekly actions.",
+    "Identify what resources or support you need.",
+    "Review your progress regularly."
+  ],
+  education: [
+    "Choose the topic or skill you want to learn.",
+    "Identify reliable learning materials.",
+    "Create a simple weekly study schedule.",
+    "Practise what you learn.",
+    "Review your progress and adjust your plan."
+  ],
+  creative: [
+    "Describe the creative idea and intended audience.",
+    "Collect references and inspiration.",
+    "List the materials or tools you need.",
+    "Create a first draft or prototype.",
+    "Gather feedback and improve your work."
+  ]
 };
 
-function notice(message,type="good"){
- const box=$("notice");
- box.textContent=message;
- box.className="notice show "+(type==="error"?"error":"good");
- clearTimeout(noticeTimer);
- noticeTimer=setTimeout(()=>box.classList.remove("show"),7000);
+function renderStarterPlan() {
+  const type = $("plannerType").value;
+  const steps = templates[type] || templates.business;
+  $("starterPlan").innerHTML = "<h3>Suggested first steps</h3><ol>" +
+    steps.map(step => "<li style='padding:7px 0;line-height:1.5'>"+escapeHtml(step)+"</li>").join("") +
+    "</ol><p class='small-muted'>These are starter suggestions, not AI-generated advice.</p>";
 }
 
-function errorMessage(error){
- console.error(error);
- const message=error?.message||"Something went wrong.";
- if(/invalid login credentials/i.test(message))return "Incorrect email or password.";
- if(/email not confirmed/i.test(message))return "Please verify your email using the link sent to your inbox.";
- if(/row-level security|permission denied/i.test(message))return "Database permissions blocked this action. Check your Supabase policies.";
- if(/duplicate key/i.test(message))return "This record already exists.";
- if(/network|fetch/i.test(message))return "Network error. Check your internet and try again.";
- return message;
-}
+$("plannerType").addEventListener("change", renderStarterPlan);
 
-function ready(){
- if(!supabaseClient){notice("Supabase is not connected. Add your existing public key in the code.","error");return false;}
- return true;
-}
-
-function go(page){
- if(!pageTitles[page])return;
- document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
- $(page).classList.add("active");
- $("pageTitle").textContent=pageTitles[page];
- document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
- if(page==="projects")loadProjects();
- if(page==="dashboard")loadProjects();
- window.scrollTo({top:0,behavior:"smooth"});
-}
-
-document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
-document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
-
-function updateAccount(){
- const email=currentUser?.email||"";
- $("accountStatus").textContent=email||"Guest mode";
- $("sideEmail").textContent=email||"Guest mode";
- $("homeAccount").textContent=email?"Signed in":"Guest";
- $("settingsEmail").value=email||"Not signed in";
- $("signOut").hidden=!currentUser;
- $("settingsSignOut").disabled=!currentUser;
- $("password").value="";
-}
-
-function checklist(type){
- const templates={
- business:[
- "Define the customer problem and the solution you offer.",
- "Identify your target customers and competitors.",
- "List your products or services.",
- "Estimate startup costs and possible revenue.",
- "Test your idea on a small scale.",
- "Collect feedback and improve your offer."
- ],
- technology:[
- "Define the problem your app will solve.",
- "Identify your users and essential features.",
- "Sketch the main screens and user journey.",
- "Build a small working prototype.",
- "Test functionality, privacy, and security.",
- "Gather feedback and prioritize improvements."
- ],
- education:[
- "Define the learning goal and intended learners.",
- "Break the topic into lessons.",
- "Gather reliable learning resources.",
- "Create a first lesson or activity.",
- "Test whether learners understand it.",
- "Improve the content using feedback."
- ],
- content:[
- "Choose your subject and target audience.",
- "Decide on your content format and goal.",
- "Create an outline.",
- "Produce and review your first piece.",
- "Publish on a suitable platform.",
- "Review feedback and improve."
- ],
- personal:[
- "Define your goal and why it matters.",
- "Break it into small achievable steps.",
- "Set a realistic target date.",
- "Identify the time and resources you need.",
- "Review your progress regularly.",
- "Adjust your plan when necessary."
- ],
- other:[
- "Describe the problem or opportunity.",
- "Define what success means.",
- "Identify the resources you need.",
- "Break the work into small tasks.",
- "Complete your first milestone.",
- "Review results and decide the next step."
- ]
- };
- return templates[type]||templates.other;
-}
-
-function renderPlan(type){
- const output=$("planOutput");
- output.replaceChildren();
- const list=document.createElement("ol");
- checklist(type).forEach(text=>{
-  const li=document.createElement("li");
-  li.textContent=text;
-  list.appendChild(li);
- });
- output.appendChild(list);
-}
-
-$("projectType").addEventListener("change",()=>renderPlan($("projectType").value));
-
-function renderProjects(){
- const list=$("projectList");
- list.replaceChildren();
- if(!currentUser){
-  const empty=document.createElement("div");empty.className="empty";
-  empty.textContent="Sign in to view your saved projects.";
-  list.appendChild(empty);return;
- }
- if(!projects.length){
-  const empty=document.createElement("div");empty.className="empty";
-  empty.textContent="No projects yet. Open the Idea Planner to create your first one.";
-  list.appendChild(empty);return;
- }
- projects.forEach(p=>{
-  const card=document.createElement("article");card.className="project";
-  const title=document.createElement("h3");title.textContent=p.title||"Untitled project";
-  const type=document.createElement("span");type.className="badge";type.textContent=p.project_type||"business";
-  const status=document.createElement("span");status.className="badge";status.textContent=p.status||"active";
-  const description=document.createElement("p");description.textContent=p.description||"No description.";
-  const date=document.createElement("p");date.className="small muted";
-  date.textContent=p.created_at?"Created "+new Date(p.created_at).toLocaleDateString():"";
-  const actions=document.createElement("div");actions.className="btn-row";
-  const edit=document.createElement("button");edit.className="btn secondary";edit.textContent="Edit";
-  edit.addEventListener("click",()=>startEdit(p));
-  const toggle=document.createElement("button");toggle.className="btn outline";
-  toggle.textContent=p.status==="completed"?"Mark active":"Mark completed";
-  toggle.addEventListener("click",()=>toggleStatus(p));
-  const remove=document.createElement("button");remove.className="btn danger";remove.textContent="Delete";
-  remove.addEventListener("click",()=>deleteProject(p));
-  actions.append(edit,toggle,remove);
-  card.append(title,type,status,description,date,actions);
-  list.appendChild(card);
- });
-}
-
-function updateDashboard(){
- const total=projects.length;
- const completed=projects.filter(p=>p.status==="completed").length;
- const active=projects.filter(p=>(p.status||"active")==="active").length;
- $("homeTotal").textContent=currentUser?total:"—";
- $("homeCompleted").textContent=currentUser?completed:"—";
- $("dashTotal").textContent=currentUser?total:"—";
- $("dashActive").textContent=currentUser?active:"—";
- $("dashCompleted").textContent=currentUser?completed:"—";
- const recent=$("recentProjects");recent.replaceChildren();
- if(!currentUser){recent.textContent="Sign in to view your projects.";return;}
- if(!projects.length){recent.textContent="No saved projects yet.";return;}
- projects.slice(0,5).forEach(p=>{
-  const row=document.createElement("div");row.className="project";
-  const name=document.createElement("strong");name.textContent=p.title||"Untitled project";
-  const state=document.createElement("span");state.className="badge";state.textContent=p.status||"active";
-  row.append(name,state);recent.appendChild(row);
- });
-}
-
-async function loadProjects(){
- if(!currentUser||!ready()){
-  projects=[];renderProjects();updateDashboard();return;
- }
- $("projectList").textContent="Loading projects...";
- try{
-  const {data,error}=await supabaseClient.from("nexus_projects")
-   .select("id,user_id,title,description,project_type,status,created_at,updated_at")
-   .order("created_at",{ascending:false});
-  if(error)throw error;
-  projects=data||[];
-  renderProjects();updateDashboard();
- }catch(error){
-  $("projectList").textContent="Unable to load projects.";
-  notice(errorMessage(error),"error");
- }
-}
-
-function startEdit(p){
- editingId=p.id;
- $("projectTitle").value=p.title||"";
- $("projectType").value=p.project_type||"business";
- $("projectIdea").value=p.description||"";
- $("saveBtn").textContent="Save project changes";
- $("cancelEdit").hidden=false;
- renderPlan($("projectType").value);
- go("planner");
-}
-
-function resetForm(){
- editingId=null;
- $("projectForm").reset();
- $("saveBtn").textContent="Create and save plan";
- $("cancelEdit").hidden=true;
- renderPlan($("projectType").value);
-}
-
-$("cancelEdit").addEventListener("click",resetForm);
-
-$("projectForm").addEventListener("submit",async event=>{
- event.preventDefault();
- if(!currentUser){notice("Please sign in before saving a project.","error");go("account");return;}
- if(!ready())return;
- const title=$("projectTitle").value.trim();
- const description=$("projectIdea").value.trim();
- const project_type=$("projectType").value;
- if(!title||!description){notice("Enter a project name and description.","error");return;}
- const button=$("saveBtn");button.disabled=true;button.textContent="Saving...";
- try{
-  const payload={title,description,project_type,updated_at:new Date().toISOString()};
-  let result;
-  if(editingId){
-   result=await supabaseClient.from("nexus_projects").update(payload)
-    .eq("id",editingId).eq("user_id",currentUser.id).select("id");
-  }else{
-   result=await supabaseClient.from("nexus_projects")
-    .insert({...payload,user_id:currentUser.id,status:"active"}).select("id");
+function createFromPlanner() {
+  const title = $("plannerTitle").value.trim();
+  const description = $("plannerDescription").value.trim();
+  const type = $("plannerType").value;
+  if (!title) {
+    alert("Please enter a project name first.");
+    $("plannerTitle").focus();
+    return;
   }
-  if(result.error)throw result.error;
-  if(!result.data||result.data.length===0)throw new Error("No project was changed. Refresh and try again.");
-  const wasEditing=Boolean(editingId);
-  resetForm();notice(wasEditing?"Project updated online.":"Project saved online.");
-  await loadProjects();go("projects");
- }catch(error){notice(errorMessage(error),"error");}
- finally{button.disabled=false;button.textContent=editingId?"Save project changes":"Create and save plan";}
-});
-
-async function toggleStatus(p){
- if(!ready()||!currentUser)return;
- try{
-  const status=p.status==="completed"?"active":"completed";
-  const {error}=await supabaseClient.from("nexus_projects")
-   .update({status,updated_at:new Date().toISOString()})
-   .eq("id",p.id).eq("user_id",currentUser.id);
-  if(error)throw error;
-  notice("Project status updated.");await loadProjects();
- }catch(error){notice(errorMessage(error),"error");}
+  const steps = templates[type] || templates.business;
+  const completeDescription = (description ? description + "\n\n" : "") +
+    "STARTER CHECKLIST\n" +
+    steps.map((step,index) => (index+1)+". [ ] "+step).join("\n");
+  newProject({title, description:completeDescription, type});
 }
 
-async function deleteProject(p){
- if(!ready()||!currentUser)return;
- if(!confirm("Delete this project permanently?"))return;
- try{
-  const {error}=await supabaseClient.from("nexus_projects").delete()
-   .eq("id",p.id).eq("user_id",currentUser.id);
-  if(error)throw error;
-  notice("Project deleted.");await loadProjects();
- }catch(error){notice(errorMessage(error),"error");}
+async function initialize() {
+  renderStarterPlan();
+
+  if (!window.supabase || !window.supabase.createClient) {
+    connectionError = "The Supabase library could not load. Check your internet connection and refresh the page.";
+    $("authBadge").textContent = "Connection error";
+    showNotice("authNotice", connectionError, "error");
+    $("projectList").innerHTML = '<div class="notice error">'+escapeHtml(connectionError)+'</div>';
+    return;
+  }
+
+  try {
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY);
+    const {data, error} = await db.auth.getSession();
+    if (error) throw error;
+    currentUser = data.session ? data.session.user : null;
+    updateAccountUI();
+
+    db.auth.onAuthStateChange((_event, session) => {
+      currentUser = session ? session.user : null;
+      updateAccountUI();
+      setTimeout(() => loadProjects(), 0);
+    });
+
+    await loadProjects();
+  } catch (error) {
+    connectionError = error.message || "Could not connect to Supabase.";
+    $("authBadge").textContent = "Connection error";
+    showNotice("authNotice", connectionError, "error");
+    $("projectList").innerHTML = '<div class="notice error">'+escapeHtml(connectionError)+'</div>';
+    $("dashboardMessage").textContent = connectionError;
+  }
 }
 
-async function signIn(){
- if(!ready())return;
- const email=$("email").value.trim(),password=$("password").value;
- if(!email||!password){notice("Enter your email and password.","error");return;}
- try{
-  const {error}=await supabaseClient.auth.signInWithPassword({email,password});
-  if(error)throw error;
-  notice("Signed in successfully.");go("dashboard");
- }catch(error){notice(errorMessage(error),"error");}
-}
-
-$("authForm").addEventListener("submit",async event=>{
- event.preventDefault();await signIn();
-});
-
-$("createAccount").addEventListener("click",async()=>{
- if(!ready())return;
- const email=$("email").value.trim(),password=$("password").value;
- if(!email||password.length<6){
-  notice("Enter a valid email and a password with at least 6 characters.","error");return;
- }
- const button=$("createAccount");button.disabled=true;button.textContent="Creating...";
- try{
-  const {data,error}=await supabaseClient.auth.signUp({email,password});
-  if(error)throw error;
-  if(data.session){notice("Account created successfully.");go("dashboard");}
-  else notice("Check your email for the verification link, then sign in.");
- }catch(error){notice(errorMessage(error),"error");}
- finally{button.disabled=false;button.textContent="Create account";}
-});
-
-async function signOut(){
- if(!ready())return;
- try{
-  const {error}=await supabaseClient.auth.signOut();
-  if(error)throw error;
-  currentUser=null;projects=[];updateAccount();renderProjects();updateDashboard();
-  notice("You have signed out.");go("home");
- }catch(error){notice(errorMessage(error),"error");}
-}
-$("signOut").addEventListener("click",signOut);
-$("settingsSignOut").addEventListener("click",signOut);
-$("refreshProjects").addEventListener("click",loadProjects);
-$("refreshDashboard").addEventListener("click",loadProjects);
-
-async function initialize(){
- renderPlan($("projectType").value);
- if(SUPABASE_PUBLIC_KEY==="PASTE_YOUR_SUPABASE_PUBLIC_KEY_HERE"){
-  updateAccount();
-  notice("Setup required: add your existing Supabase public key in this file.","error");
-  return;
- }
- try{
-  if(!window.supabase)throw new Error("Supabase library failed to load. Refresh and check your connection.");
-  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLIC_KEY);
-  const {data,error}=await supabaseClient.auth.getSession();
-  if(error)throw error;
-  currentUser=data.session?.user||null;
-  updateAccount();
-  await loadProjects();
-  supabaseClient.auth.onAuthStateChange((_event,session)=>{
-   currentUser=session?.user||null;
-   updateAccount();
-   setTimeout(()=>{
-    if(currentUser)loadProjects();
-    else{projects=[];renderProjects();updateDashboard();}
-   },0);
-  });
- }catch(error){notice(errorMessage(error),"error");}
-}
 initialize();
-})();
 </script>
 </body>
-  </html>
+ </html>
