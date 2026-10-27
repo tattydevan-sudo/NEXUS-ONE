@@ -1,13 +1,23 @@
-export async function onRequestPost({ request, env }) {
+ export async function onRequestPost({ request, env }) {
   try {
     if (!env.AI) {
       return Response.json(
-        { error: "AI service is not configured." },
+        { error: "Workers AI binding 'AI' is missing." },
         { status: 503 }
       );
     }
 
-    const body = await request.json();
+    let body;
+
+    try {
+      body = await request.json();
+    } catch {
+      return Response.json(
+        { error: "Invalid JSON request." },
+        { status: 400 }
+      );
+    }
+
     const idea = String(body.idea || "").trim();
     const task = String(body.task || "business_plan").trim();
 
@@ -20,18 +30,18 @@ export async function onRequestPost({ request, env }) {
 
     const tasks = {
       business_plan:
-        "Create a practical business plan with an overview, customers, products or services, marketing, costs, risks, and next steps.",
+        "Create a practical business plan with an overview, target customers, services, marketing, estimated costs, risks, and next steps.",
       marketing:
-        "Create marketing content with a promotional message, three social media post ideas, and a call to action.",
+        "Create a marketing plan with a promotional message, three social media post ideas, and a call to action.",
       budget:
-        "Create a simple startup budget in Kenyan shillings (KSh). Label all figures as estimates and explain assumptions.",
+        "Create a simple startup budget in Kenyan shillings. Label figures as estimates and explain assumptions.",
       action_plan:
         "Create a practical 30-day action plan with weekly goals and specific tasks."
     };
 
     if (!tasks[task]) {
       return Response.json(
-        { error: "Choose a supported planning task." },
+        { error: "Unsupported task: " + task },
         { status: 400 }
       );
     }
@@ -43,25 +53,41 @@ export async function onRequestPost({ request, env }) {
           {
             role: "system",
             content:
-              "You are NEXUS ONE, a helpful business planning assistant. Give practical, clear advice for entrepreneurs, including people starting with very little money. Clearly label estimates and never guarantee business results."
+              "You are NEXUS ONE, a practical planning assistant. Give clear, useful advice for entrepreneurs and students. Adapt to the user's idea, explain assumptions, and never guarantee results."
           },
           {
             role: "user",
-            content: `${tasks[task]}\n\nUser's idea:\n${idea}`
+            content: tasks[task] + "\n\nUser's idea:\n" + idea
           }
         ],
         max_tokens: 1200
       }
     );
 
+    const answer = result?.response || result?.output;
+
+    if (!answer) {
+      console.error("Workers AI returned no answer:", JSON.stringify(result));
+
+      return Response.json(
+        { error: "The AI service returned an empty answer." },
+        { status: 502 }
+      );
+    }
+
     return Response.json({
       success: true,
-      answer: result.response || result.output || "No answer was returned."
+      answer
     });
   } catch (error) {
+    console.error("NEXUS ONE AI error:", error?.stack || error);
+
     return Response.json(
-      { error: "The AI request failed. Please try again later." },
+      {
+        error: "AI generation failed.",
+        details: String(error?.message || error || "Unknown error")
+      },
       { status: 500 }
     );
   }
-        }
+ }
